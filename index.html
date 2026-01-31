@@ -23,7 +23,7 @@
     <div id="app" class="max-w-md mx-auto min-h-screen relative pb-10">
         <div v-if="loading" class="fixed inset-0 z-[100] bg-white flex flex-col items-center justify-center">
             <div class="loader mb-4"></div>
-            <p class="text-blue-600 font-bold text-sm tracking-widest">系統同步校準中...</p>
+            <p class="text-blue-600 font-bold text-sm tracking-widest">地圖邏輯校準中...</p>
         </div>
 
         <header v-if="!loading" class="sticky top-0 z-50 glass-header border-b border-gray-100 shadow-sm">
@@ -128,32 +128,24 @@
                         const dayInt = parseInt(e.Day);
                         if (!isNaN(dayInt) && !dayMap[dayInt]) {
                             const dateParts = e.Date ? e.Date.split('-') : ["","","??"];
-                            dayMap[dayInt] = {
-                                dayNum: dayInt,
-                                date: e.Date,
-                                shortDate: dateParts[dateParts.length-1],
-                                city: e['Overnight City']
-                            };
+                            dayMap[dayInt] = { dayNum: dayInt, date: e.Date, shortDate: dateParts[dateParts.length-1], city: e['Overnight City'] };
                         }
                     });
                     return Object.values(dayMap).sort((a, b) => a.dayNum - b.dayNum);
                 });
 
                 const currentDay = computed(() => sortedDays.value[currentDayIndex.value]);
-                const currentDayEvents = computed(() => {
-                    if (!currentDay.value) return [];
-                    return events.value.filter(e => parseInt(e.Day) === currentDay.value.dayNum);
-                });
+                const currentDayEvents = computed(() => currentDay.value ? events.value.filter(e => parseInt(e.Day) === currentDay.value.dayNum) : []);
 
-                // 修正地圖連結判定：包含 maps.google 或 googleusercontent 的通通算地圖
-                const isMap = (url) => {
+                // 核心改進：只要包含 maps 或 goo 就認定為地圖
+                const isMapLink = (url) => {
                     const u = url.toString().toLowerCase();
-                    return u.includes('maps.google') || u.includes('googleusercontent') || u.includes('goo.gl/maps');
+                    return u.includes('maps') || u.includes('goo');
                 };
 
                 const isValidLink = (l) => l && l.toString().trim().startsWith('http');
-                const getLinkIcon = (l) => isMap(l) ? 'fas fa-map-marked-alt' : 'fas fa-external-link-alt';
-                const getLinkLabel = (l) => isMap(l) ? '查看位置 →' : '查看資訊/時刻表 →';
+                const getLinkIcon = (l) => isMapLink(l) ? 'fas fa-map-marked-alt' : 'fas fa-external-link-alt';
+                const getLinkLabel = (l) => isMapLink(l) ? '查看位置 →' : '查看資訊/時刻表 →';
 
                 const fetchWeather = async () => {
                     if (!currentDay.value) return;
