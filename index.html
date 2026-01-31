@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>2026 日本行｜智慧小幫手</title>
+    <title>2026 日本行助理</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
@@ -12,7 +12,7 @@
     <style>
         body { font-family: 'Noto Sans TC', sans-serif; background-color: #F8FAFC; -webkit-tap-highlight-color: transparent; }
         .timeline-line { position: absolute; left: 24px; top: 0; bottom: 0; width: 2px; background-image: linear-gradient(to bottom, #E2E8F0 10%, rgba(255,255,255,0) 0%); background-size: 2px 10px; z-index: 0; }
-        .glass-header { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+        .glass-header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
         .card-active { border-left: 4px solid #3B82F6; }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .loader { border: 3px solid #F3F4F6; border-top: 3px solid #3B82F6; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
@@ -21,9 +21,10 @@
 </head>
 <body>
     <div id="app" class="max-w-md mx-auto min-h-screen relative pb-10">
+        
         <div v-if="loading" class="fixed inset-0 z-[100] bg-white flex flex-col items-center justify-center">
             <div class="loader mb-4"></div>
-            <div class="text-blue-600 font-bold tracking-widest text-sm">行程校正中...</div>
+            <p class="text-blue-600 font-bold text-sm tracking-widest">系統重新校準中...</p>
         </div>
 
         <header v-if="!loading" class="sticky top-0 z-50 glass-header border-b border-gray-100 shadow-sm">
@@ -48,7 +49,7 @@
             </div>
 
             <div class="flex overflow-x-auto hide-scrollbar px-3 py-3 space-x-3 bg-white/50">
-                <button v-for="(day, index) in days" :key="index"
+                <button v-for="(day, index) in sortedDays" :key="index"
                     @click="currentDayIndex = index"
                     :class="currentDayIndex === index ? 'bg-blue-600 text-white shadow-lg scale-105' : 'bg-white text-gray-400 border border-gray-100'"
                     class="flex-shrink-0 w-14 h-14 rounded-2xl transition-all duration-300 flex flex-col items-center justify-center">
@@ -64,24 +65,22 @@
                 <div class="absolute left-[18px] top-1.5 w-3.5 h-3.5 rounded-full border-4 border-gray-50 shadow-sm" :class="getTheme(event.Category).dot"></div>
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden card-active">
                     <div class="px-4 py-3 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
-                        <span class="font-mono font-bold text-gray-600">{{ formatTime(event['Start Time']) }}</span>
+                        <span class="font-mono font-bold text-gray-600">{{ event['Start Time']?.substring(0,5) }}</span>
                         <span class="text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-wider" :class="getTheme(event.Category).tag">{{ event.Category }}</span>
                     </div>
                     <div class="p-4">
                         <h3 class="text-lg font-bold text-gray-800 leading-snug mb-2">{{ event.Activity }}</h3>
-                        <div v-if="event['Location / Address']" class="flex items-start mb-3">
+                        <div v-if="event['Location / Address']" class="flex items-start mb-3 text-sm text-gray-500 leading-tight">
                             <i class="fas fa-location-arrow text-blue-500 mt-1 mr-2 text-xs"></i>
-                            <p class="text-sm text-gray-500 leading-tight">{{ event['Location / Address'] }}</p>
+                            {{ event['Location / Address'] }}
                         </div>
-
                         <div v-if="isValidLink(event.Link)" class="mt-2 mb-3">
                             <a :href="event.Link" target="_blank" rel="noopener noreferrer" 
-                               class="inline-flex items-center bg-blue-50 text-blue-600 px-4 py-2 rounded-xl text-xs font-bold border border-blue-100 shadow-sm active:bg-blue-200 transition">
+                               class="inline-flex items-center bg-blue-50 text-blue-600 px-4 py-2 rounded-xl text-xs font-bold border border-blue-100 shadow-sm active:bg-blue-200">
                                 <i class="fas fa-map-marked-alt mr-2"></i>在地圖中開啟行程 →
                             </a>
                         </div>
-
-                        <div v-if="event['Pregnancy / Accessibility Notes']" class="bg-rose-50 border border-rose-100 p-3 rounded-xl flex items-start">
+                        <div v-if="event['Pregnancy / Accessibility Notes']" class="bg-rose-50 border border-rose-100 p-3 rounded-xl flex items-start mt-2">
                             <i class="fas fa-heart text-rose-400 mt-0.5 mr-2 text-xs"></i>
                             <p class="text-xs text-rose-700 leading-relaxed font-medium">{{ event['Pregnancy / Accessibility Notes'] }}</p>
                         </div>
@@ -102,11 +101,9 @@
                 const currentDayIndex = ref(0);
                 const weather = ref(null);
                 const weatherLoading = ref(false);
-
                 const cityCoords = { '廣島': { lat: 34.38, lon: 132.45 }, '神戶': { lat: 34.69, lon: 135.18 }, '姬路': { lat: 34.81, lon: 134.69 }, '岡山': { lat: 34.66, lon: 133.91 } };
 
                 const fetchData = () => {
-                    loading.value = true;
                     Papa.parse(SHEET_URL, {
                         download: true, header: true, skipEmptyLines: true,
                         complete: (results) => {
@@ -121,34 +118,28 @@
                     });
                 };
 
-                const isValidLink = (link) => {
-                    if (!link) return false;
-                    const l = link.toString().trim();
-                    return l.startsWith('http');
-                };
-
-                const days = computed(() => {
-                    const unique = [];
-                    const seen = new Set();
+                const sortedDays = computed(() => {
+                    const dayMap = {};
                     events.value.forEach(e => {
-                        if (!seen.has(e.Date)) {
-                            seen.add(e.Date);
-                            // 直接取 Date 的最後兩碼作為短日期，避免 JS Date 物件時差問題
+                        const dayInt = parseInt(e.Day);
+                        if (!isNaN(dayInt) && !dayMap[dayInt]) {
                             const dateParts = e.Date.split('-');
-                            const shortDate = dateParts.length === 3 ? dateParts[2] : e.Date;
-                            unique.push({ 
-                                dayNum: e.Day, 
-                                date: e.Date, 
-                                city: e['Overnight City'],
-                                shortDate: shortDate
-                            });
+                            dayMap[dayInt] = {
+                                dayNum: dayInt,
+                                date: e.Date,
+                                shortDate: dateParts[dateParts.length-1],
+                                city: e['Overnight City']
+                            };
                         }
                     });
-                    return unique.sort((a, b) => parseInt(a.dayNum) - parseInt(b.dayNum));
+                    return Object.values(dayMap).sort((a, b) => a.dayNum - b.dayNum);
                 });
 
-                const currentDay = computed(() => days.value[currentDayIndex.value]);
-                const currentDayEvents = computed(() => currentDay.value ? events.value.filter(e => e.Date === currentDay.value.date) : []);
+                const currentDay = computed(() => sortedDays.value[currentDayIndex.value]);
+                const currentDayEvents = computed(() => {
+                    if (!currentDay.value) return [];
+                    return events.value.filter(e => parseInt(e.Day) === currentDay.value.dayNum);
+                });
 
                 const fetchWeather = async () => {
                     if (!currentDay.value) return;
@@ -168,8 +159,8 @@
                 onMounted(fetchData);
 
                 return { 
-                    loading, days, currentDayIndex, currentDay, currentDayEvents, weather, weatherLoading, isValidLink,
-                    formatTime: (t) => t ? t.substring(0,5) : '--:--',
+                    loading, sortedDays, currentDayIndex, currentDay, currentDayEvents, weather, weatherLoading,
+                    isValidLink: (l) => l && l.toString().trim().startsWith('http'),
                     getTheme: (cat) => {
                         if (cat?.includes('交通') || cat?.includes('航班')) return { dot: 'bg-blue-500', tag: 'bg-blue-100 text-blue-600' };
                         if (cat?.includes('餐')) return { dot: 'bg-orange-500', tag: 'bg-orange-100 text-orange-600' };
