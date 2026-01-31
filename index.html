@@ -3,16 +3,19 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>2026 日本行助理</title>
+    <title>2026 日本行助理 Pro</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { font-family: 'Noto Sans TC', sans-serif; background-color: #F8FAFC; -webkit-tap-highlight-color: transparent; }
-        .timeline-line { position: absolute; left: 24px; top: 0; bottom: 0; width: 2px; background-image: linear-gradient(to bottom, #E2E8F0 10%, rgba(255,255,255,0) 0%); background-size: 2px 10px; z-index: 0; }
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: #F1F5F9; -webkit-tap-highlight-color: transparent; }
+        .timeline-line { position: absolute; left: 24px; top: 0; bottom: 0; width: 2px; background-image: linear-gradient(to bottom, #CBD5E1 10%, rgba(255,255,255,0) 0%); background-size: 2px 10px; z-index: 0; }
         .glass-header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+        /* 展開動畫 */
+        .expand-enter-active, .expand-leave-active { transition: all 0.3s ease-out; max-height: 500px; overflow: hidden; }
+        .expand-enter-from, .expand-leave-to { max-height: 0; opacity: 0; }
         .card-active { border-left: 4px solid #3B82F6; }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .loader { border: 3px solid #F3F4F6; border-top: 3px solid #3B82F6; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
@@ -20,19 +23,19 @@
     </style>
 </head>
 <body>
-    <div id="app" class="max-w-md mx-auto min-h-screen relative pb-10">
+    <div id="app" class="max-w-md mx-auto min-h-screen relative pb-20">
+        
         <div v-if="loading" class="fixed inset-0 z-[100] bg-white flex flex-col items-center justify-center">
             <div class="loader mb-4"></div>
-            <p class="text-blue-600 font-bold text-sm tracking-widest">地圖邏輯校準中...</p>
+            <p class="text-blue-600 font-bold text-sm tracking-widest">正在排版精美內容...</p>
         </div>
 
         <header v-if="!loading" class="sticky top-0 z-50 glass-header border-b border-gray-100 shadow-sm">
             <div class="px-5 py-4 flex justify-between items-center">
                 <div>
                     <h1 class="text-xl font-black text-gray-800 tracking-tight">2026 日本行</h1>
-                    <div class="flex items-center text-xs text-gray-500 mt-0.5">
-                        <i class="far fa-calendar-alt mr-1"></i>
-                        {{ currentDay?.date }} <span class="mx-1">|</span> Day {{ currentDay?.dayNum }}
+                    <div class="flex items-center text-xs text-gray-400 mt-0.5 font-medium">
+                        <i class="far fa-calendar-alt mr-1"></i> {{ currentDay?.date }} | Day {{ currentDay?.dayNum }}
                     </div>
                 </div>
                 <div class="bg-blue-50 px-3 py-1.5 rounded-2xl border border-blue-100 text-right min-w-[80px]">
@@ -49,7 +52,7 @@
 
             <div class="flex overflow-x-auto hide-scrollbar px-3 py-3 space-x-3 bg-white/50">
                 <button v-for="(day, index) in sortedDays" :key="index"
-                    @click="currentDayIndex = index"
+                    @click="currentDayIndex = index; expandedIdx = null"
                     :class="currentDayIndex === index ? 'bg-blue-600 text-white shadow-lg scale-105' : 'bg-white text-gray-400 border border-gray-100'"
                     class="flex-shrink-0 w-14 h-14 rounded-2xl transition-all duration-300 flex flex-col items-center justify-center">
                     <span class="text-[9px] uppercase font-bold">D{{ day.dayNum }}</span>
@@ -60,32 +63,77 @@
 
         <main v-if="!loading" class="p-5 relative">
             <div class="timeline-line"></div>
-            <div v-for="(event, idx) in currentDayEvents" :key="idx" class="relative z-10 mb-8 pl-10">
-                <div class="absolute left-[18px] top-1.5 w-3.5 h-3.5 rounded-full border-4 border-gray-50 shadow-sm" :class="getTheme(event.Category).dot"></div>
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden card-active">
-                    <div class="px-4 py-3 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
-                        <span class="font-mono font-bold text-gray-600">{{ formatTime(event['Start Time']) }}</span>
-                        <span class="text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-wider" :class="getTheme(event.Category).tag">{{ event.Category }}</span>
+            
+            <div v-for="(event, idx) in currentDayEvents" :key="idx" class="relative z-10 mb-6 pl-10">
+                <div class="absolute left-[18px] top-4 w-3.5 h-3.5 rounded-full border-4 border-white shadow-sm" :class="getTheme(event.Category).dot"></div>
+                
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden transition-all duration-300 active:scale-[0.98]" 
+                     :class="{'ring-2 ring-blue-400 shadow-md': expandedIdx === idx}"
+                     @click="toggleExpand(idx)">
+                    
+                    <div class="px-4 py-3 flex justify-between items-center bg-white">
+                        <div class="flex items-center space-x-3">
+                            <span class="font-mono font-bold text-gray-400 text-sm">{{ formatTime(event['Start Time']) }}</span>
+                            <h3 class="font-bold text-gray-800 leading-tight">{{ event.Activity }}</h3>
+                        </div>
+                        <i class="fas text-gray-300 text-xs" :class="expandedIdx === idx ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
                     </div>
-                    <div class="p-4">
-                        <h3 class="text-lg font-bold text-gray-800 leading-snug mb-2">{{ event.Activity }}</h3>
-                        <div v-if="event['Location / Address']" class="flex items-start mb-3 text-sm text-gray-500 leading-tight">
-                            <i class="fas fa-location-arrow text-blue-500 mt-1 mr-2 text-xs"></i>
-                            {{ event['Location / Address'] }}
-                        </div>
-                        
-                        <div v-if="isValidLink(event.Link)" class="mt-2 mb-3">
-                            <a :href="event.Link" target="_blank" rel="noopener noreferrer" 
-                               class="inline-flex items-center bg-blue-50 text-blue-600 px-4 py-2 rounded-xl text-xs font-bold border border-blue-100 shadow-sm active:bg-blue-200">
-                                <i :class="getLinkIcon(event.Link)" class="mr-2"></i>{{ getLinkLabel(event.Link) }}
-                            </a>
-                        </div>
 
-                        <div v-if="event['Pregnancy / Accessibility Notes']" class="bg-rose-50 border border-rose-100 p-3 rounded-xl flex items-start mt-2">
-                            <i class="fas fa-heart text-rose-400 mt-0.5 mr-2 text-xs"></i>
-                            <p class="text-xs text-rose-700 leading-relaxed font-medium">{{ event['Pregnancy / Accessibility Notes'] }}</p>
-                        </div>
+                    <div class="px-4 pb-3 flex flex-wrap gap-2">
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider" :class="getTheme(event.Category).tag">
+                            {{ event.Category }}
+                        </span>
+                        <span v-if="event['Transport']" class="text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded-md font-bold">
+                            <i class="fas fa-train mr-1"></i>{{ event['Transport'] }}
+                        </span>
                     </div>
+
+                    <transition name="expand">
+                        <div v-if="expandedIdx === idx" class="border-t border-gray-50 bg-gray-50/50 p-4 space-y-4">
+                            
+                            <div v-if="event['From'] || event['To'] || event['Est. Travel Time']" class="grid grid-cols-2 gap-3">
+                                <div class="bg-white p-2 rounded-xl border border-gray-100">
+                                    <p class="text-[10px] text-gray-400 font-bold uppercase">Route</p>
+                                    <p class="text-xs text-gray-700 font-medium">{{ event['From'] }} → {{ event['To'] }}</p>
+                                </div>
+                                <div class="bg-white p-2 rounded-xl border border-gray-100">
+                                    <p class="text-[10px] text-gray-400 font-bold uppercase">Time / Cost</p>
+                                    <p class="text-xs text-gray-700 font-medium">{{ event['Est. Travel Time'] || '--' }} ({{ event['Est. Cost'] || 'N/A' }})</p>
+                                </div>
+                            </div>
+
+                            <div class="space-y-3">
+                                <div v-if="event['Location / Address']" class="flex items-start">
+                                    <div class="w-6 h-6 bg-blue-100 rounded-lg flex items-center justify-center mr-3 flex-shrink-0">
+                                        <i class="fas fa-map-marker-alt text-blue-500 text-[10px]"></i>
+                                    </div>
+                                    <p class="text-sm text-gray-600 leading-snug">{{ event['Location / Address'] }}</p>
+                                </div>
+
+                                <div v-if="event['Booking / Notes']" class="flex items-start">
+                                    <div class="w-6 h-6 bg-emerald-100 rounded-lg flex items-center justify-center mr-3 flex-shrink-0">
+                                        <i class="fas fa-info-circle text-emerald-500 text-[10px]"></i>
+                                    </div>
+                                    <p class="text-sm text-gray-600 leading-snug italic">{{ event['Booking / Notes'] }}</p>
+                                </div>
+                            </div>
+
+                            <div v-if="event['Pregnancy / Accessibility Notes']" class="bg-rose-50 border border-rose-100 p-3 rounded-xl">
+                                <div class="flex items-center mb-1">
+                                    <i class="fas fa-heart text-rose-400 text-[10px] mr-2"></i>
+                                    <span class="text-[10px] font-black text-rose-400 uppercase tracking-tighter">Pregnancy Note</span>
+                                </div>
+                                <p class="text-xs text-rose-700 leading-relaxed font-medium">{{ event['Pregnancy / Accessibility Notes'] }}</p>
+                            </div>
+
+                            <div v-if="isValidLink(event.Link)" class="pt-2">
+                                <a :href="event.Link" target="_blank" @click.stop 
+                                   class="flex items-center justify-center w-full bg-blue-600 text-white py-2.5 rounded-xl text-xs font-bold shadow-md shadow-blue-200">
+                                    <i :class="getLinkIcon(event.Link)" class="mr-2"></i>{{ getLinkLabel(event.Link) }}
+                                </a>
+                            </div>
+                        </div>
+                    </transition>
                 </div>
             </div>
         </main>
@@ -100,6 +148,7 @@
                 const loading = ref(true);
                 const events = ref([]);
                 const currentDayIndex = ref(0);
+                const expandedIdx = ref(null);
                 const weather = ref(null);
                 const weatherLoading = ref(false);
                 const cityCoords = { '廣島': { lat: 34.38, lon: 132.45 }, '神戶': { lat: 34.69, lon: 135.18 }, '姬路': { lat: 34.81, lon: 134.69 }, '岡山': { lat: 34.66, lon: 133.91 } };
@@ -137,15 +186,14 @@
                 const currentDay = computed(() => sortedDays.value[currentDayIndex.value]);
                 const currentDayEvents = computed(() => currentDay.value ? events.value.filter(e => parseInt(e.Day) === currentDay.value.dayNum) : []);
 
-                // 核心改進：只要包含 maps 或 goo 就認定為地圖
+                const toggleExpand = (idx) => {
+                    expandedIdx.value = expandedIdx.value === idx ? null : idx;
+                };
+
                 const isMapLink = (url) => {
                     const u = url.toString().toLowerCase();
                     return u.includes('maps') || u.includes('goo');
                 };
-
-                const isValidLink = (l) => l && l.toString().trim().startsWith('http');
-                const getLinkIcon = (l) => isMapLink(l) ? 'fas fa-map-marked-alt' : 'fas fa-external-link-alt';
-                const getLinkLabel = (l) => isMapLink(l) ? '查看位置 →' : '查看資訊/時刻表 →';
 
                 const fetchWeather = async () => {
                     if (!currentDay.value) return;
@@ -166,7 +214,10 @@
 
                 return { 
                     loading, sortedDays, currentDayIndex, currentDay, currentDayEvents, weather, weatherLoading, 
-                    isValidLink, getLinkIcon, getLinkLabel,
+                    expandedIdx, toggleExpand,
+                    isValidLink: (l) => l && l.toString().trim().startsWith('http'),
+                    getLinkIcon: (l) => isMapLink(l) ? 'fas fa-map-marked-alt' : 'fas fa-external-link-alt',
+                    getLinkLabel: (l) => isMapLink(l) ? '在地圖中開啟 →' : '查看時刻表/資訊 →',
                     formatTime: (t) => t ? t.substring(0,5) : '--:--',
                     getTheme: (cat) => {
                         const c = cat || "";
