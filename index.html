@@ -2,20 +2,28 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>2026 日本行助理 Pro</title>
+    
+    <link rel="apple-touch-icon" href="https://i.ibb.co/QF90T31d/IMG-8456.jpg">
+    <link rel="icon" type="image/jpeg" href="https://i.ibb.co/QF90T31d/IMG-8456.jpg">
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="2026日本行">
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <style>
         body { font-family: 'Noto Sans TC', sans-serif; background-color: #F1F5F9; -webkit-tap-highlight-color: transparent; }
         .timeline-line { position: absolute; left: 24px; top: 0; bottom: 0; width: 2px; background-image: linear-gradient(to bottom, #CBD5E1 10%, rgba(255,255,255,0) 0%); background-size: 2px 10px; z-index: 0; }
         .glass-header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
-        .expand-enter-active, .expand-leave-active { transition: all 0.3s ease-out; max-height: 600px; overflow: hidden; }
+        .expand-enter-active, .expand-leave-active { transition: all 0.3s ease-out; max-height: 800px; overflow: hidden; }
         .expand-enter-from, .expand-leave-to { max-height: 0; opacity: 0; }
-        .card-active { border-left: 4px solid #3B82F6; }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .loader { border: 3px solid #F3F4F6; border-top: 3px solid #3B82F6; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -23,10 +31,9 @@
 </head>
 <body>
     <div id="app" class="max-w-md mx-auto min-h-screen relative pb-20">
-        
         <div v-if="loading" class="fixed inset-0 z-[100] bg-white flex flex-col items-center justify-center">
             <div class="loader mb-4"></div>
-            <p class="text-blue-600 font-bold text-sm tracking-widest">正在優化排版...</p>
+            <p class="text-blue-600 font-bold text-sm tracking-widest">正在載入專屬行程...</p>
         </div>
 
         <header v-if="!loading" class="sticky top-0 z-50 glass-header border-b border-gray-100 shadow-sm">
@@ -62,11 +69,9 @@
 
         <main v-if="!loading" class="p-5 relative">
             <div class="timeline-line"></div>
-            
             <div v-for="(event, idx) in currentDayEvents" :key="idx" class="relative z-10 mb-6 pl-10">
                 <div class="absolute left-[18px] top-4 w-3.5 h-3.5 rounded-full border-4 border-white shadow-sm" :class="getTheme(event.Category).dot"></div>
-                
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden transition-all duration-300 active:scale-[0.99]" 
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden transition-all duration-300" 
                      :class="{'ring-2 ring-blue-400 shadow-md': expandedIdx === idx}"
                      @click="toggleExpand(idx)">
                     
@@ -79,9 +84,7 @@
                     </div>
 
                     <div class="px-4 pb-3 flex flex-wrap gap-2">
-                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider" :class="getTheme(event.Category).tag">
-                            {{ event.Category }}
-                        </span>
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider" :class="getTheme(event.Category).tag">{{ event.Category }}</span>
                         <span v-if="hasData(event['Transport'])" class="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-md font-bold">
                             <i class="fas fa-train mr-1 text-[9px]"></i>{{ event['Transport'] }}
                         </span>
@@ -89,22 +92,16 @@
 
                     <transition name="expand">
                         <div v-if="expandedIdx === idx" class="border-t border-gray-50 bg-gray-50/40 p-4 space-y-4">
-                            
                             <div v-if="hasData(event['From']) || hasData(event['To'])" class="grid grid-cols-2 gap-3">
                                 <div class="bg-white p-2.5 rounded-xl border border-gray-100 shadow-sm">
                                     <p class="text-[9px] text-gray-400 font-black uppercase tracking-widest mb-1">Route</p>
-                                    <p class="text-xs text-gray-700 font-bold">
-                                        {{ event['From'] || 'Start' }} <i class="fas fa-long-arrow-alt-right mx-1 text-blue-300"></i> {{ event['To'] || 'End' }}
-                                    </p>
+                                    <p class="text-xs text-gray-700 font-bold">{{ event['From'] || 'Start' }} → {{ event['To'] || 'End' }}</p>
                                 </div>
                                 <div v-if="hasData(event['Est. Travel Time']) || hasData(event['Est. Cost'])" class="bg-white p-2.5 rounded-xl border border-gray-100 shadow-sm">
                                     <p class="text-[9px] text-gray-400 font-black uppercase tracking-widest mb-1">Details</p>
-                                    <p class="text-xs text-gray-700 font-bold">
-                                        {{ event['Est. Travel Time'] || '' }} {{ hasData(event['Est. Cost']) ? '('+event['Est. Cost']+')' : '' }}
-                                    </p>
+                                    <p class="text-xs text-gray-700 font-bold">{{ event['Est. Travel Time'] }} {{ hasData(event['Est. Cost']) ? '('+event['Est. Cost']+')' : '' }}</p>
                                 </div>
                             </div>
-
                             <div class="space-y-3">
                                 <div v-if="hasData(event['Location / Address'])" class="flex items-start">
                                     <div class="w-6 h-6 bg-blue-50 rounded-lg flex items-center justify-center mr-3 flex-shrink-0">
@@ -112,7 +109,6 @@
                                     </div>
                                     <p class="text-sm text-gray-600 leading-snug">{{ event['Location / Address'] }}</p>
                                 </div>
-
                                 <div v-if="hasData(event['Booking / Notes'])" class="flex items-start">
                                     <div class="w-6 h-6 bg-emerald-50 rounded-lg flex items-center justify-center mr-3 flex-shrink-0">
                                         <i class="fas fa-sticky-note text-emerald-400 text-[10px]"></i>
@@ -120,18 +116,12 @@
                                     <p class="text-sm text-gray-600 leading-snug italic">{{ event['Booking / Notes'] }}</p>
                                 </div>
                             </div>
-
                             <div v-if="hasData(event['Pregnancy / Accessibility Notes'])" class="bg-rose-50/60 border border-rose-100 p-3 rounded-xl">
-                                <div class="flex items-center mb-1">
-                                    <i class="fas fa-heart text-rose-400 text-[10px] mr-2"></i>
-                                    <span class="text-[9px] font-black text-rose-400 uppercase tracking-widest">Pregnancy Note</span>
-                                </div>
+                                <div class="flex items-center mb-1"><i class="fas fa-heart text-rose-400 text-[10px] mr-2"></i><span class="text-[9px] font-black text-rose-400 uppercase tracking-widest">Pregnancy Note</span></div>
                                 <p class="text-xs text-rose-700 leading-relaxed font-bold">{{ event['Pregnancy / Accessibility Notes'] }}</p>
                             </div>
-
                             <div v-if="isValidLink(event.Link)" class="pt-2">
-                                <a :href="event.Link" target="_blank" @click.stop 
-                                   class="flex items-center justify-center w-full bg-blue-600 text-white py-3 rounded-xl text-xs font-bold shadow-lg shadow-blue-100 active:scale-95 transition-transform">
+                                <a :href="event.Link" target="_blank" @click.stop class="flex items-center justify-center w-full bg-blue-600 text-white py-3 rounded-xl text-xs font-bold shadow-lg active:scale-95 transition-transform">
                                     <i :class="getLinkIcon(event.Link)" class="mr-2"></i>{{ getLinkLabel(event.Link) }}
                                 </a>
                             </div>
@@ -145,7 +135,6 @@
     <script>
         const { createApp, ref, computed, watch, onMounted } = Vue;
         const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSj-9PZm3tsLXr5AMXyyaEvPuBfzdphHFh7oE-AaDIViGIpWgyUw2WiG9GMqX84A-bzNN0lyc3OIP8U/pub?output=csv';
-
         createApp({
             setup() {
                 const loading = ref(true);
@@ -155,77 +144,36 @@
                 const weather = ref(null);
                 const weatherLoading = ref(false);
                 const cityCoords = { '廣島': { lat: 34.38, lon: 132.45 }, '神戶': { lat: 34.69, lon: 135.18 }, '姬路': { lat: 34.81, lon: 134.69 }, '岡山': { lat: 34.66, lon: 133.91 } };
-
-                const hasData = (val) => val && val.toString().trim() !== "" && val !== "N/A" && val !== "-";
-
+                const hasData = (v) => v && v.toString().trim() !== "" && v !== "N/A" && v !== "-";
                 const fetchData = () => {
-                    Papa.parse(SHEET_URL, {
-                        download: true, header: true, skipEmptyLines: true,
-                        complete: (results) => {
-                            const cleanData = results.data
-                                .filter(r => r.Day && r.Day.trim() !== "")
-                                .map(row => {
-                                    const newRow = {};
-                                    Object.keys(row).forEach(key => newRow[key.trim()] = row[key]);
-                                    return newRow;
-                                });
-                            events.value = cleanData;
-                            loading.value = false;
-                        }
-                    });
+                    Papa.parse(SHEET_URL, { download: true, header: true, skipEmptyLines: true, complete: (results) => {
+                        events.value = results.data.filter(r => r.Day && r.Day.trim() !== "").map(row => {
+                            const n = {}; Object.keys(row).forEach(k => n[k.trim()] = row[k]); return n;
+                        });
+                        loading.value = false;
+                    }});
                 };
-
                 const sortedDays = computed(() => {
-                    const dayMap = {};
-                    events.value.forEach(e => {
-                        const dayInt = parseInt(e.Day);
-                        if (!isNaN(dayInt) && !dayMap[dayInt]) {
-                            const dateParts = e.Date ? e.Date.split('-') : ["","","??"];
-                            dayMap[dayInt] = { dayNum: dayInt, date: e.Date, shortDate: dateParts[dateParts.length-1], city: e['Overnight City'] };
-                        }
+                    const m = {}; events.value.forEach(e => {
+                        const d = parseInt(e.Day); if (!isNaN(d) && !m[d]) m[d] = { dayNum: d, date: e.Date, shortDate: e.Date?.split('-').pop(), city: e['Overnight City'] };
                     });
-                    return Object.values(dayMap).sort((a, b) => a.dayNum - b.dayNum);
+                    return Object.values(m).sort((a, b) => a.dayNum - b.dayNum);
                 });
-
                 const currentDay = computed(() => sortedDays.value[currentDayIndex.value]);
                 const currentDayEvents = computed(() => currentDay.value ? events.value.filter(e => parseInt(e.Day) === currentDay.value.dayNum) : []);
-
-                const isMapLink = (url) => {
-                    const u = url.toString().toLowerCase();
-                    return u.includes('maps') || u.includes('goo');
-                };
-
+                const isMap = (u) => u.toString().toLowerCase().includes('maps') || u.toString().toLowerCase().includes('goo');
                 const fetchWeather = async () => {
-                    if (!currentDay.value) return;
-                    weatherLoading.value = true;
+                    if (!currentDay.value) return; weatherLoading.value = true;
                     const coord = cityCoords[currentDay.value.city] || cityCoords['廣島'];
-                    try {
-                        const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${coord.lat}&longitude=${coord.lon}&current_weather=true`);
-                        const data = await res.json();
-                        const iconMap = (c) => c <= 3 ? 'fa-sun' : c <= 67 ? 'fa-cloud-rain' : 'fa-cloud';
-                        weather.value = { temp: Math.round(data.current_weather.temperature), icon: `fas ${iconMap(data.current_weather.weathercode)}` };
-                    } catch (e) { weather.value = null; }
-                    finally { weatherLoading.value = false; }
+                    try { const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${coord.lat}&longitude=${coord.lon}&current_weather=true`); const d = await res.json(); weather.value = { temp: Math.round(d.current_weather.temperature), icon: d.current_weather.weathercode <= 3 ? 'fas fa-sun' : 'fas fa-cloud' }; }
+                    catch (e) { weather.value = null; } finally { weatherLoading.value = false; }
                 };
-
-                watch(currentDayIndex, fetchWeather);
-                watch(loading, (val) => { if(!val) fetchWeather(); });
-                onMounted(fetchData);
-
-                return { 
-                    loading, sortedDays, currentDayIndex, currentDay, currentDayEvents, weather, weatherLoading, 
-                    expandedIdx, toggleExpand: (idx) => expandedIdx.value = expandedIdx.value === idx ? null : idx,
-                    hasData, isValidLink: (l) => l && l.toString().trim().startsWith('http'),
-                    getLinkIcon: (l) => isMapLink(l) ? 'fas fa-map-marked-alt' : 'fas fa-external-link-alt',
-                    getLinkLabel: (l) => isMapLink(l) ? '查看位置 →' : '查看資訊/時刻表 →',
-                    formatTime: (t) => t ? t.substring(0,5) : '--:--',
-                    getTheme: (cat) => {
-                        const c = cat || "";
-                        if (c.includes('交通')) return { dot: 'bg-blue-500', tag: 'bg-blue-100 text-blue-600' };
-                        if (c.includes('餐')) return { dot: 'bg-orange-500', tag: 'bg-orange-100 text-orange-600' };
-                        return { dot: 'bg-emerald-500', tag: 'bg-emerald-100 text-emerald-600' };
-                    }
-                };
+                watch(currentDayIndex, fetchWeather); watch(loading, (v) => { if(!v) fetchWeather(); }); onMounted(fetchData);
+                return { loading, sortedDays, currentDayIndex, currentDay, currentDayEvents, weather, weatherLoading, expandedIdx, toggleExpand: (i) => expandedIdx.value = expandedIdx.value === i ? null : i, hasData, isValidLink: (l) => l && l.toString().trim().startsWith('http'), getLinkIcon: (l) => isMap(l) ? 'fas fa-map-marked-alt' : 'fas fa-external-link-alt', getLinkLabel: (l) => isMap(l) ? '查看位置 →' : '查看資訊 →', formatTime: (t) => t ? t.substring(0,5) : '--:--', getTheme: (c) => {
+                    if (c?.includes('交通')) return { dot: 'bg-blue-500', tag: 'bg-blue-100 text-blue-600' };
+                    if (c?.includes('餐')) return { dot: 'bg-orange-500', tag: 'bg-orange-100 text-orange-600' };
+                    return { dot: 'bg-emerald-500', tag: 'bg-emerald-100 text-emerald-600' };
+                }};
             }
         }).mount('#app');
     </script>
