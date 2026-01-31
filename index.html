@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <title>2026 日本行🌸</title>
+    <title>2026 日本行助理 🌸</title>
     
     <link rel="apple-touch-icon" href="https://i.ibb.co/QF90T31d/IMG-8456.jpg">
     <link rel="icon" type="image/jpeg" href="https://i.ibb.co/QF90T31d/IMG-8456.jpg">
@@ -18,41 +18,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        body { 
-            background: linear-gradient(135deg, #FFF5F7 0%, #F5F3FF 100%); 
-            font-family: 'Noto Sans TC', sans-serif; 
-            -webkit-tap-highlight-color: transparent; 
-        }
-        .glass-header { 
-            background: rgba(255, 255, 255, 0.75); 
-            backdrop-filter: blur(20px); 
-            -webkit-backdrop-filter: blur(20px); 
-        }
-        .nav-btn-active { 
-            background: linear-gradient(45deg, #FB7185, #A78BFA); 
-            box-shadow: 0 4px 15px rgba(251, 113, 133, 0.3);
-        }
-        .cute-card { 
-            border-radius: 28px; 
-            background: rgba(255, 255, 255, 0.8);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.02);
-        }
-        .fab {
-            position: fixed; bottom: 35px; right: 25px; z-index: 100;
-            width: 72px; height: 72px; border-radius: 36px;
-            background: linear-gradient(45deg, #F43F5E, #EC4899);
-            color: white; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            box-shadow: 0 10px 25px rgba(244, 63, 94, 0.4);
-            border: 3px solid white; animation: pulse 2s infinite;
-        }
+        body { background: linear-gradient(135deg, #FFF5F7 0%, #F5F3FF 100%); font-family: 'Noto Sans TC', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .glass-header { background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+        .nav-btn-active { background: linear-gradient(45deg, #FB7185, #A78BFA); box-shadow: 0 4px 15px rgba(251, 113, 133, 0.3); }
+        .cute-card { border-radius: 28px; background: rgba(255, 255, 255, 0.8); border: 1px solid rgba(255, 255, 255, 0.5); box-shadow: 0 10px 20px rgba(0,0,0,0.02); }
+        .fab { position: fixed; bottom: 35px; right: 25px; z-index: 100; width: 72px; height: 72px; border-radius: 36px; background: linear-gradient(45deg, #F43F5E, #EC4899); color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(244, 63, 94, 0.4); border: 3px solid white; animation: pulse 2s infinite; }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.08); } 100% { transform: scale(1); } }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .signature { 
-            font-weight: 900; background: linear-gradient(45deg, #FB7185, #A78BFA);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            margin: 50px 0; text-align: center; font-size: 12px;
-        }
+        .signature { font-weight: 900; background: linear-gradient(45deg, #FB7185, #A78BFA); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 50px 0; text-align: center; font-size: 12px; }
     </style>
 </head>
 <body>
@@ -60,27 +33,45 @@
         
         <button @click="showDietModal = true" class="fab">
             <i class="fas fa-utensils text-xl mb-0.5"></i>
-            <span class="text-[9px] font-black uppercase tracking-widest">Dietary</span>
+            <span class="text-[9px] font-black uppercase">Dietary</span>
         </button>
 
         <transition name="fade">
-            <div v-if="showDietModal" class="fixed inset-0 z-[200] bg-black/70 flex items-center justify-center p-6" @click="showDietModal = false">
-                <div class="bg-white w-full rounded-[40px] overflow-hidden shadow-2xl" @click.stop>
-                    <div class="bg-gradient-to-r from-rose-400 to-pink-500 p-8 text-center text-white">
-                        <h2 class="text-2xl font-black">【食事のお願い】</h2>
+            <div v-if="showDietModal" class="fixed inset-0 z-[200] bg-black/80 flex items-center justify-center p-5" @click="showDietModal = false">
+                <div class="bg-white w-full rounded-[45px] overflow-hidden shadow-2xl transition-all" @click.stop>
+                    <div class="bg-rose-500 py-6 text-center">
+                        <h2 class="text-white text-2xl font-black">【食事のお願い】</h2>
                     </div>
-                    <div class="p-8 space-y-6 text-gray-700">
-                        <p class="text-xl font-black text-rose-500 border-b-2 border-rose-50 pb-2">私は妊婦です。</p>
-                        <p class="text-lg font-bold leading-relaxed whitespace-pre-line">
-                            以下のものは入れないでください：<br><br>
-                            アルコール（酒・みりん）<br>
-                            ネギ・玉ねぎ<br>
-                            生もの（肉・魚・卵）は加熱してください
-                        </p>
-                        <p class="text-md font-bold text-gray-400 pt-4 border-t border-gray-100">
-                            ご配慮ありがとうございます。
-                        </p>
+
+                    <div class="p-8 space-y-6">
+                        <div class="bg-rose-50 border-l-8 border-rose-400 p-5 rounded-r-2xl">
+                            <p class="text-rose-600 text-2xl font-black italic">私は妊婦です。🤰</p>
+                        </div>
+
+                        <div class="space-y-4">
+                            <p class="font-bold text-gray-400 text-sm tracking-widest">以下のものは入れないでください：</p>
+                            
+                            <div class="bg-gray-50 p-4 rounded-2xl flex items-center border border-gray-100">
+                                <span class="text-3xl mr-4">🚫</span>
+                                <p class="text-xl font-black text-gray-800">アルコール（酒・みりん）</p>
+                            </div>
+
+                            <div class="bg-gray-50 p-4 rounded-2xl flex items-center border border-gray-100">
+                                <span class="text-3xl mr-4">🧅</span>
+                                <p class="text-xl font-black text-gray-800">ネギ・玉ねぎ</p>
+                            </div>
+
+                            <div class="bg-rose-50 p-4 rounded-2xl flex items-center border border-rose-100">
+                                <span class="text-3xl mr-4">🔥</span>
+                                <p class="text-xl font-black text-rose-600">生もの（肉・魚・卵）は加熱してください</p>
+                            </div>
+                        </div>
+
+                        <div class="pt-4 text-center">
+                            <p class="text-lg font-black text-gray-700">ご配慮ありがとうございます。🙏</p>
+                        </div>
                     </div>
+
                     <button @click="showDietModal = false" class="w-full py-5 bg-gray-50 text-gray-400 font-black text-xs uppercase tracking-widest">Close ✕</button>
                 </div>
             </div>
@@ -91,8 +82,8 @@
             <p class="text-rose-400 font-bold tracking-widest">育慶大人行程載入中...</p>
         </div>
 
-        <header v-if="!loading" class="sticky top-0 z-50 glass-header border-b border-white/50">
-            <div class="px-6 py-5 flex justify-between items-end">
+        <header v-if="!loading" class="sticky top-0 z-50 glass-header border-b border-white/50 px-6 py-5">
+            <div class="flex justify-between items-end">
                 <div>
                     <h1 class="text-2xl font-black text-gray-800 tracking-tighter">2026 日本行 <span class="text-rose-500">🌸</span></h1>
                     <p class="text-xs font-bold text-gray-400 mt-1 uppercase tracking-widest">{{ currentDay?.city }}⊹ Day {{ currentDay?.dayNum }}</p>
@@ -105,8 +96,7 @@
                     </div>
                 </div>
             </div>
-            
-            <div class="flex overflow-x-auto hide-scrollbar px-4 pb-4 space-x-3">
+            <div class="flex overflow-x-auto hide-scrollbar pt-4 space-x-3">
                 <button v-for="(day, index) in sortedDays" :key="index"
                     @click="currentDayIndex = index"
                     :class="currentDayIndex === index ? 'nav-btn-active text-white' : 'bg-white/50 text-gray-400'"
@@ -130,19 +120,21 @@
                         <p v-if="event['Location / Address']" class="text-xs text-gray-400 font-medium truncate"><i class="fas fa-map-marker-alt mr-1"></i> {{ event['Location / Address'] }}</p>
                     </div>
                     
-                    <div v-if="expandedIdx === idx" class="px-5 pb-6 space-y-4 bg-white/30 border-t border-white/50 pt-5">
-                        <div v-if="event['Booking / Notes']" class="text-sm text-gray-500 leading-relaxed bg-white/50 p-4 rounded-2xl italic">
-                            <i class="fas fa-comment-dots text-rose-300 mr-2"></i>{{ event['Booking / Notes'] }}
+                    <transition name="expand">
+                        <div v-if="expandedIdx === idx" class="px-5 pb-6 space-y-4 bg-white/30 border-t border-white/50 pt-5 text-gray-600">
+                            <div v-if="event['Booking / Notes']" class="text-sm leading-relaxed bg-white/50 p-4 rounded-2xl italic">
+                                <i class="fas fa-comment-dots text-rose-300 mr-2"></i>{{ event['Booking / Notes'] }}
+                            </div>
+                            <div v-if="event['Pregnancy / Accessibility Notes']" class="bg-gradient-to-r from-rose-50 to-pink-50 p-4 rounded-2xl border border-rose-100">
+                                <p class="text-xs text-rose-600 font-black tracking-wide leading-relaxed">
+                                    <i class="fas fa-heart mr-2"></i>{{ event['Pregnancy / Accessibility Notes'] }}
+                                </p>
+                            </div>
+                            <a v-if="event.Link && event.Link.startsWith('http')" :href="event.Link" target="_blank" class="flex items-center justify-center w-full py-4 rounded-2xl bg-gray-800 text-white text-xs font-black shadow-lg">
+                                查看詳細資訊 <i class="fas fa-arrow-right ml-2"></i>
+                            </a>
                         </div>
-                        <div v-if="event['Pregnancy / Accessibility Notes']" class="bg-gradient-to-r from-rose-50 to-pink-50 p-4 rounded-2xl border border-rose-100">
-                            <p class="text-xs text-rose-600 font-black tracking-wide leading-relaxed">
-                                <i class="fas fa-heart mr-2"></i>{{ event['Pregnancy / Accessibility Notes'] }}
-                            </p>
-                        </div>
-                        <a v-if="event.Link && event.Link.startsWith('http')" :href="event.Link" target="_blank" class="flex items-center justify-center w-full py-4 rounded-2xl bg-gray-800 text-white text-xs font-black shadow-lg">
-                            查看詳細資訊 <i class="fas fa-arrow-right ml-2"></i>
-                        </a>
-                    </div>
+                    </transition>
                 </div>
             </div>
             
