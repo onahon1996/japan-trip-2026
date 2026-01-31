@@ -1,174 +1,55 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <title>2026 日本行助理 🌸</title>
-    
-    <link rel="apple-touch-icon" href="https://i.ibb.co/QF90T31d/IMG-8456.jpg">
-    <link rel="icon" type="image/jpeg" href="https://i.ibb.co/QF90T31d/IMG-8456.jpg">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="日本行🌸">
+<transition name="modal-fade">
+    <div v-if="showDietModal" class="fixed inset-0 z-[200] bg-black/80 flex items-center justify-center p-4" @click="showDietModal = false">
+        <div class="bg-white w-full max-w-sm rounded-[40px] overflow-hidden shadow-2xl transition-all" @click.stop>
+            
+            <div class="bg-rose-500 pt-8 pb-6 px-6 text-center">
+                <div class="inline-block bg-white/20 rounded-full px-4 py-1 mb-2">
+                    <span class="text-white text-xs font-black tracking-widest uppercase">Special Request</span>
+                </div>
+                <h2 class="text-white text-2xl font-black">食事のお願い</h2>
+            </div>
 
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
-    <style>
-        body { background-color: #FFF5F7 !important; font-family: 'Noto Sans TC', sans-serif; -webkit-tap-highlight-color: transparent; }
-        .glass-header { background: rgba(255, 255, 255, 0.9) !important; backdrop-filter: blur(15px); }
-        .cute-card { border-radius: 24px; background: white; border: 1px solid #FFE4E6; }
-        .signature { color: #FDA4AF; font-size: 10px; font-weight: 700; text-align: center; margin: 30px 0; opacity: 0.8; }
-        
-        /* 懸浮按鈕樣式 */
-        .fab {
-            position: fixed; bottom: 30px; right: 20px; z-index: 100;
-            width: 64px; height: 64px; border-radius: 32px;
-            background: #FB7185; color: white;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            box-shadow: 0 8px 20px rgba(251, 113, 133, 0.4);
-            border: 2px solid white; animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0% { transform: scale(1); box-shadow: 0 8px 20px rgba(251, 113, 133, 0.4); }
-            50% { transform: scale(1.05); box-shadow: 0 12px 25px rgba(251, 113, 133, 0.6); }
-            100% { transform: scale(1); box-shadow: 0 8px 20px rgba(251, 113, 133, 0.4); }
-        }
+            <div class="p-8 space-y-8">
+                <div class="text-center pb-4 border-b border-rose-50">
+                    <p class="text-rose-500 text-2xl font-black mb-1">私は妊婦です。</p>
+                    <p class="text-gray-400 text-xs font-bold">（我是孕婦）</p>
+                </div>
 
-        /* 彈窗動畫 */
-        .modal-fade-enter-active, .modal-fade-leave-active { transition: opacity 0.3s ease; }
-        .modal-fade-enter-from, .modal-fade-leave-to { opacity: 0; }
-    </style>
-</head>
-<body>
-    <div id="app" class="max-w-md mx-auto min-h-screen relative pb-10">
-        
-        <button @click="showDietModal = true" class="fab">
-            <i class="fas fa-utensils text-lg mb-0.5"></i>
-            <span class="text-[9px] font-black tracking-tighter uppercase">Dietary</span>
-        </button>
+                <div class="space-y-6">
+                    <div class="flex items-start">
+                        <div class="text-2xl mr-4">🚫</div>
+                        <div>
+                            <p class="text-xl font-black text-gray-800 leading-none">アルコール</p>
+                            <p class="text-xs text-rose-400 font-bold mt-1">（酒・みりん）</p>
+                        </div>
+                    </div>
 
-        <transition name="modal-fade">
-            <div v-if="showDietModal" class="fixed inset-0 z-[200] bg-black/90 flex items-center justify-center p-6" @click="showDietModal = false">
-                <div class="relative max-w-full max-h-full">
-                    <button class="absolute -top-12 right-0 text-white text-3xl">&times;</button>
-                    <img src="https://i.ibb.co/fW4CHXY/1-1.jpg" class="rounded-xl shadow-2xl max-w-full max-h-[80vh] object-contain">
-                    <p class="text-white text-center mt-4 font-bold text-sm">請將此圖示示予店員確認<br><span class="text-rose-300 text-xs">點擊任何地方即可關閉</span></p>
+                    <div class="flex items-start">
+                        <div class="text-2xl mr-4">🚫</div>
+                        <div>
+                            <p class="text-xl font-black text-gray-800 leading-none">ネギ・玉ねぎ</p>
+                            <p class="text-xs text-rose-400 font-bold mt-1">（青蔥・洋蔥）</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start">
+                        <div class="text-2xl mr-4">🔥</div>
+                        <div>
+                            <p class="text-xl font-black text-gray-800 leading-none">生ものは加熱する</p>
+                            <p class="text-xs text-rose-400 font-bold mt-1">（肉・魚・卵務必全熟）</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-rose-50 rounded-2xl p-4 text-center">
+                    <p class="text-rose-600 font-black text-sm">ご配慮ありがとうございます。</p>
+                    <p class="text-rose-300 text-[10px] mt-1">（謝謝您的協助與體諒）</p>
                 </div>
             </div>
-        </transition>
 
-        <div v-if="loading" class="fixed inset-0 z-[100] bg-white flex flex-col items-center justify-center">
-            <div class="loader mb-4 border-rose-100 border-t-rose-400 rounded-full w-8 h-8 animate-spin border-4"></div>
-            <p class="text-rose-400 font-bold text-sm tracking-widest text-center px-10">🌸 育慶大人正在為您<br>準備精緻行程...</p>
+            <button @click="showDietModal = false" class="w-full py-5 bg-gray-50 text-gray-400 font-black text-xs tracking-[0.2em] uppercase active:bg-gray-100 transition-colors">
+                Tap to Close ✕
+            </button>
         </div>
-
-        <header v-if="!loading" class="sticky top-0 z-50 glass-header border-b border-rose-50 shadow-sm">
-            <div class="px-5 py-4 flex justify-between items-center">
-                <div>
-                    <h1 class="text-xl font-black text-rose-500 tracking-tight">2026 日本行 🌸</h1>
-                    <div class="flex items-center text-[11px] text-rose-300 mt-0.5 font-bold">
-                        <i class="far fa-calendar-alt mr-1"></i> {{ currentDay?.date }} <span class="mx-1">⊹</span> Day {{ currentDay?.dayNum }}
-                    </div>
-                </div>
-                <div class="bg-rose-50/50 px-3 py-1.5 rounded-2xl border border-rose-100 text-right min-w-[80px]">
-                    <div v-if="weatherLoading" class="w-3 h-3 border-2 border-rose-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
-                    <div v-else-if="weather" class="flex flex-col items-end">
-                        <span class="text-[9px] text-rose-400 font-black uppercase tracking-tighter">{{ currentDay?.city }}</span>
-                        <div class="flex items-center text-rose-500">
-                            <i :class="weather.icon" class="mr-1.5 text-xs"></i>
-                            <span class="font-mono font-black text-sm">{{ weather.temp }}°</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="flex overflow-x-auto hide-scrollbar px-3 py-3 space-x-3">
-                <button v-for="(day, index) in sortedDays" :key="index"
-                    @click="currentDayIndex = index; expandedIdx = null"
-                    :class="currentDayIndex === index ? 'bg-rose-400 text-white shadow-md scale-105' : 'bg-white text-rose-200 border border-rose-100'"
-                    class="flex-shrink-0 w-14 h-14 rounded-[18px] transition-all duration-300 flex flex-col items-center justify-center">
-                    <span class="text-[9px] uppercase font-black">D{{ day.dayNum }}</span>
-                    <span class="text-sm font-black">{{ day.shortDate }}</span>
-                </button>
-            </div>
-        </header>
-
-        <main v-if="!loading" class="p-5 relative">
-            <div v-for="(event, idx) in currentDayEvents" :key="idx" class="relative z-10 mb-6 pl-10">
-                <div class="absolute left-[17px] top-4 w-4 h-4 rounded-full border-4 border-white shadow-sm bg-rose-300"></div>
-                
-                <div class="bg-white cute-card shadow-sm border border-rose-50 overflow-hidden" 
-                     :class="{'ring-2 ring-rose-200': expandedIdx === idx}" @click="expandedIdx = expandedIdx === idx ? null : idx">
-                    <div class="px-4 py-4 flex justify-between items-center">
-                        <div class="flex items-center space-x-3">
-                            <span class="font-mono font-black text-rose-200 text-sm">{{ event['Start Time']?.substring(0,5) || '--:--' }}</span>
-                            <h3 class="font-bold text-gray-700 leading-tight">{{ event.Activity }}</h3>
-                        </div>
-                        <i class="fas text-rose-200 text-[10px]" :class="expandedIdx === idx ? 'fa-heart' : 'fa-chevron-down'"></i>
-                    </div>
-                    <div class="px-4 pb-4 flex flex-wrap gap-2">
-                        <span class="text-[10px] font-black px-2.5 py-1 rounded-lg uppercase bg-rose-50 text-rose-500 border border-rose-100">{{ event.Category }}</span>
-                    </div>
-
-                    <div v-if="expandedIdx === idx" class="border-t border-rose-50 bg-rose-50/20 p-4 space-y-4">
-                        <div v-if="hasData(event['Location / Address'])" class="flex items-start">
-                            <div class="w-7 h-7 bg-rose-100 rounded-xl flex items-center justify-center mr-3 flex-shrink-0"><i class="fas fa-map-pin text-rose-400 text-[10px]"></i></div>
-                            <p class="text-sm text-gray-500">{{ event['Location / Address'] }}</p>
-                        </div>
-                        <div v-if="hasData(event['Booking / Notes'])" class="flex items-start">
-                            <div class="w-7 h-7 bg-purple-100 rounded-xl flex items-center justify-center mr-3 flex-shrink-0"><i class="fas fa-sparkles text-purple-400 text-[10px]"></i></div>
-                            <p class="text-sm text-gray-500 italic">{{ event['Booking / Notes'] }}</p>
-                        </div>
-                        <div v-if="hasData(event['Pregnancy / Accessibility Notes'])" class="bg-white border-2 border-dashed border-rose-200 p-3 rounded-2xl">
-                            <p class="text-xs text-rose-600 font-bold leading-relaxed">{{ event['Pregnancy / Accessibility Notes'] }}</p>
-                        </div>
-                        <div v-if="event.Link && event.Link.startsWith('http')" class="pt-2">
-                            <a :href="event.Link" target="_blank" class="flex items-center justify-center w-full bg-rose-400 text-white py-3.5 rounded-2xl text-xs font-black">帶我去這裡 →</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="signature">✨ Powered by 育慶大人 ✨</div>
-        </main>
     </div>
-
-    <script>
-        const { createApp, ref, computed, watch, onMounted } = Vue;
-        const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSj-9PZm3tsLXr5AMXyyaEvPuBfzdphHFh7oE-AaDIViGIpWgyUw2WiG9GMqX84A-bzNN0lyc3OIP8U/pub?output=csv';
-        createApp({
-            setup() {
-                const loading = ref(true);
-                const events = ref([]);
-                const currentDayIndex = ref(0);
-                const expandedIdx = ref(null);
-                const weather = ref(null);
-                const weatherLoading = ref(false);
-                const showDietModal = ref(false); // 控制飲食習慣圖的開關
-
-                const hasData = (v) => v && v.toString().trim() !== "" && v !== "N/A";
-                const fetchData = () => {
-                    Papa.parse(SHEET_URL, { download: true, header: true, skipEmptyLines: true, complete: (res) => {
-                        events.value = res.data.filter(r => r.Day).map(row => {
-                            const n = {}; Object.keys(row).forEach(k => n[k.trim()] = row[k]); return n;
-                        });
-                        loading.value = false;
-                    }});
-                };
-                const sortedDays = computed(() => {
-                    const m = {}; events.value.forEach(e => {
-                        const d = parseInt(e.Day); if (!isNaN(d) && !m[d]) m[d] = { dayNum: d, date: e.Date, shortDate: e.Date?.split('-').pop(), city: e['Overnight City'] };
-                    });
-                    return Object.values(m).sort((a, b) => a.dayNum - b.dayNum);
-                });
-                onMounted(fetchData);
-                return { loading, sortedDays, currentDayIndex, currentDayEvents: computed(() => sortedDays.value[currentDayIndex.value] ? events.value.filter(e => parseInt(e.Day) === sortedDays.value[currentDayIndex.value].dayNum) : []), weather, weatherLoading, expandedIdx, hasData, showDietModal };
-            }
-        }).mount('#app');
-    </script>
-</body>
-</html>
+</transition>
