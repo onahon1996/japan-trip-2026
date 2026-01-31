@@ -23,7 +23,7 @@
     <div id="app" class="max-w-md mx-auto min-h-screen relative pb-10">
         <div v-if="loading" class="fixed inset-0 z-[100] bg-white flex flex-col items-center justify-center">
             <div class="loader mb-4"></div>
-            <div class="text-blue-600 font-bold tracking-widest text-sm">更新資料中...</div>
+            <div class="text-blue-600 font-bold tracking-widest text-sm">行程校正中...</div>
         </div>
 
         <header v-if="!loading" class="sticky top-0 z-50 glass-header border-b border-gray-100 shadow-sm">
@@ -53,7 +53,7 @@
                     :class="currentDayIndex === index ? 'bg-blue-600 text-white shadow-lg scale-105' : 'bg-white text-gray-400 border border-gray-100'"
                     class="flex-shrink-0 w-14 h-14 rounded-2xl transition-all duration-300 flex flex-col items-center justify-center">
                     <span class="text-[9px] uppercase font-bold">D{{ day.dayNum }}</span>
-                    <span class="text-sm font-black">{{ getShortDate(day.date) }}</span>
+                    <span class="text-sm font-black">{{ day.shortDate }}</span>
                 </button>
             </div>
         </header>
@@ -64,7 +64,7 @@
                 <div class="absolute left-[18px] top-1.5 w-3.5 h-3.5 rounded-full border-4 border-gray-50 shadow-sm" :class="getTheme(event.Category).dot"></div>
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden card-active">
                     <div class="px-4 py-3 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
-                        <span class="font-mono font-bold text-gray-600">{{ event['Start Time']?.substring(0,5) }}</span>
+                        <span class="font-mono font-bold text-gray-600">{{ formatTime(event['Start Time']) }}</span>
                         <span class="text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-wider" :class="getTheme(event.Category).tag">{{ event.Category }}</span>
                     </div>
                     <div class="p-4">
@@ -76,8 +76,8 @@
 
                         <div v-if="isValidLink(event.Link)" class="mt-2 mb-3">
                             <a :href="event.Link" target="_blank" rel="noopener noreferrer" 
-                               class="inline-flex items-center bg-blue-50 text-blue-600 px-4 py-2 rounded-xl text-xs font-bold border border-blue-100 hover:bg-blue-100 transition">
-                                <i class="fas fa-external-link-alt mr-2"></i>在地圖中開啟行程 →
+                               class="inline-flex items-center bg-blue-50 text-blue-600 px-4 py-2 rounded-xl text-xs font-bold border border-blue-100 shadow-sm active:bg-blue-200 transition">
+                                <i class="fas fa-map-marked-alt mr-2"></i>在地圖中開啟行程 →
                             </a>
                         </div>
 
@@ -110,7 +110,6 @@
                     Papa.parse(SHEET_URL, {
                         download: true, header: true, skipEmptyLines: true,
                         complete: (results) => {
-                            // 這裡會清理所有 Key，把欄位前後的空格都刪掉，避免對應不到 Link
                             const cleanData = results.data.map(row => {
                                 const newRow = {};
                                 Object.keys(row).forEach(key => newRow[key.trim()] = row[key]);
@@ -125,7 +124,7 @@
                 const isValidLink = (link) => {
                     if (!link) return false;
                     const l = link.toString().trim();
-                    return l.startsWith('http') || l.startsWith('https://');
+                    return l.startsWith('http');
                 };
 
                 const days = computed(() => {
@@ -134,10 +133,18 @@
                     events.value.forEach(e => {
                         if (!seen.has(e.Date)) {
                             seen.add(e.Date);
-                            unique.push({ dayNum: e.Day, date: e.Date, city: e['Overnight City'] });
+                            // 直接取 Date 的最後兩碼作為短日期，避免 JS Date 物件時差問題
+                            const dateParts = e.Date.split('-');
+                            const shortDate = dateParts.length === 3 ? dateParts[2] : e.Date;
+                            unique.push({ 
+                                dayNum: e.Day, 
+                                date: e.Date, 
+                                city: e['Overnight City'],
+                                shortDate: shortDate
+                            });
                         }
                     });
-                    return unique.sort((a, b) => a.dayNum - b.dayNum);
+                    return unique.sort((a, b) => parseInt(a.dayNum) - parseInt(b.dayNum));
                 });
 
                 const currentDay = computed(() => days.value[currentDayIndex.value]);
@@ -162,7 +169,7 @@
 
                 return { 
                     loading, days, currentDayIndex, currentDay, currentDayEvents, weather, weatherLoading, isValidLink,
-                    getShortDate: (d) => d?.split('-')[2] || '',
+                    formatTime: (t) => t ? t.substring(0,5) : '--:--',
                     getTheme: (cat) => {
                         if (cat?.includes('交通') || cat?.includes('航班')) return { dot: 'bg-blue-500', tag: 'bg-blue-100 text-blue-600' };
                         if (cat?.includes('餐')) return { dot: 'bg-orange-500', tag: 'bg-orange-100 text-orange-600' };
