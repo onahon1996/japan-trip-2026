@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <title>2026 日本行助理 🌸</title>
+    <title>2026 日本行🌸</title>
     
     <link rel="apple-touch-icon" href="https://i.ibb.co/QF90T31d/IMG-8456.jpg">
     <link rel="icon" type="image/jpeg" href="https://i.ibb.co/QF90T31d/IMG-8456.jpg">
@@ -21,7 +21,7 @@
         body { background: linear-gradient(135deg, #FFF5F7 0%, #F5F3FF 100%); font-family: 'Noto Sans TC', sans-serif; -webkit-tap-highlight-color: transparent; }
         .glass-header { background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
         .nav-btn-active { background: linear-gradient(45deg, #FB7185, #A78BFA); box-shadow: 0 4px 15px rgba(251, 113, 133, 0.3); }
-        .cute-card { border-radius: 28px; background: rgba(255, 255, 255, 0.8); border: 1px solid rgba(255, 255, 255, 0.5); box-shadow: 0 10px 20px rgba(0,0,0,0.02); }
+        .cute-card { border-radius: 28px; background: rgba(255, 255, 255, 0.8); border: 1px solid rgba(255, 255, 255, 0.5); box-shadow: 0 10px 20px rgba(0,0,0,0.02); transition: all 0.3s ease; }
         .fab { position: fixed; bottom: 35px; right: 25px; z-index: 100; width: 72px; height: 72px; border-radius: 36px; background: linear-gradient(45deg, #F43F5E, #EC4899); color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(244, 63, 94, 0.4); border: 3px solid white; animation: pulse 2s infinite; }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.08); } 100% { transform: scale(1); } }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
@@ -38,40 +38,24 @@
 
         <transition name="fade">
             <div v-if="showDietModal" class="fixed inset-0 z-[200] bg-black/80 flex items-center justify-center p-5" @click="showDietModal = false">
-                <div class="bg-white w-full rounded-[45px] overflow-hidden shadow-2xl transition-all" @click.stop>
-                    <div class="bg-rose-500 py-6 text-center">
-                        <h2 class="text-white text-2xl font-black">【食事のお願い】</h2>
-                    </div>
-
+                <div class="bg-white w-full rounded-[45px] overflow-hidden shadow-2xl" @click.stop>
+                    <div class="bg-rose-500 py-6 text-center text-white"><h2 class="text-2xl font-black">【食事のお願い】</h2></div>
                     <div class="p-8 space-y-6">
-                        <div class="bg-rose-50 border-l-8 border-rose-400 p-5 rounded-r-2xl">
-                            <p class="text-rose-600 text-2xl font-black italic">私は妊婦です。🤰</p>
-                        </div>
-
+                        <div class="bg-rose-50 border-l-8 border-rose-400 p-5 rounded-r-2xl text-rose-600 text-2xl font-black">私は妊婦です。🤰</div>
                         <div class="space-y-4">
                             <p class="font-bold text-gray-400 text-sm tracking-widest">以下のものは入れないでください：</p>
-                            
                             <div class="bg-gray-50 p-4 rounded-2xl flex items-center border border-gray-100">
-                                <span class="text-3xl mr-4">🚫</span>
-                                <p class="text-xl font-black text-gray-800">アルコール（酒・みりん）</p>
+                                <span class="text-3xl mr-4">🚫</span><p class="text-xl font-black text-gray-800">アルコール（酒・みりん）</p>
                             </div>
-
                             <div class="bg-gray-50 p-4 rounded-2xl flex items-center border border-gray-100">
-                                <span class="text-3xl mr-4">🧅</span>
-                                <p class="text-xl font-black text-gray-800">ネギ・玉ねぎ</p>
+                                <span class="text-3xl mr-4">🧅</span><p class="text-xl font-black text-gray-800">ネギ・玉ねぎ</p>
                             </div>
-
                             <div class="bg-rose-50 p-4 rounded-2xl flex items-center border border-rose-100">
-                                <span class="text-3xl mr-4">🔥</span>
-                                <p class="text-xl font-black text-rose-600">生もの（肉・魚・卵）は加熱してください</p>
+                                <span class="text-3xl mr-4">🔥</span><p class="text-xl font-black text-rose-600">生もの（肉・魚・卵）は加熱してください</p>
                             </div>
                         </div>
-
-                        <div class="pt-4 text-center">
-                            <p class="text-lg font-black text-gray-700">ご配慮ありがとうございます。🙏</p>
-                        </div>
+                        <div class="pt-4 text-center text-lg font-black text-gray-700 font-bold">ご配慮ありがとうございます。🙏</div>
                     </div>
-
                     <button @click="showDietModal = false" class="w-full py-5 bg-gray-50 text-gray-400 font-black text-xs uppercase tracking-widest">Close ✕</button>
                 </div>
             </div>
@@ -98,7 +82,7 @@
             </div>
             <div class="flex overflow-x-auto hide-scrollbar pt-4 space-x-3">
                 <button v-for="(day, index) in sortedDays" :key="index"
-                    @click="currentDayIndex = index"
+                    @click="currentDayIndex = index; expandedIdx = null"
                     :class="currentDayIndex === index ? 'nav-btn-active text-white' : 'bg-white/50 text-gray-400'"
                     class="flex-shrink-0 w-14 h-16 rounded-2xl transition-all duration-300 flex flex-col items-center justify-center border border-white">
                     <span class="text-[9px] font-black uppercase">D{{ day.dayNum }}</span>
@@ -110,31 +94,42 @@
         <main v-if="!loading" class="p-6">
             <div v-for="(event, idx) in currentDayEvents" :key="idx" class="mb-8 relative pl-10">
                 <div class="absolute left-[17px] top-4 w-4 h-4 rounded-full border-4 border-white shadow-md bg-rose-400 z-10"></div>
-                <div class="cute-card overflow-hidden" @click="expandedIdx = expandedIdx === idx ? null : idx">
+                <div class="cute-card overflow-hidden" :class="{'ring-2 ring-rose-200': expandedIdx === idx}" @click="expandedIdx = expandedIdx === idx ? null : idx">
                     <div class="px-5 py-5">
                         <div class="flex justify-between items-start mb-2">
-                            <span class="font-mono font-black text-rose-300 text-sm tracking-tighter">{{ event['Start Time']?.substring(0,5) }}</span>
+                            <span class="font-mono font-black text-rose-300 text-sm tracking-tighter">{{ formatTime(event['Start Time']) }}</span>
                             <span class="text-[10px] px-2.5 py-1 rounded-full font-black uppercase" :class="getCategoryStyle(event.Category)">{{ event.Category }}</span>
                         </div>
                         <h3 class="text-lg font-black text-gray-700 leading-tight mb-1">{{ event.Activity }}</h3>
-                        <p v-if="event['Location / Address']" class="text-xs text-gray-400 font-medium truncate"><i class="fas fa-map-marker-alt mr-1"></i> {{ event['Location / Address'] }}</p>
+                        <p v-if="hasData(event['Location / Address'])" class="text-xs text-gray-400 font-medium truncate"><i class="fas fa-map-marker-alt mr-1"></i> {{ event['Location / Address'] }}</p>
                     </div>
                     
-                    <transition name="expand">
-                        <div v-if="expandedIdx === idx" class="px-5 pb-6 space-y-4 bg-white/30 border-t border-white/50 pt-5 text-gray-600">
-                            <div v-if="event['Booking / Notes']" class="text-sm leading-relaxed bg-white/50 p-4 rounded-2xl italic">
-                                <i class="fas fa-comment-dots text-rose-300 mr-2"></i>{{ event['Booking / Notes'] }}
+                    <div v-if="expandedIdx === idx" class="px-5 pb-6 space-y-4 bg-white/30 border-t border-white/50 pt-5">
+                        <div v-if="hasData(event['From']) || hasData(event['To'])" class="grid grid-cols-2 gap-2 text-[11px] font-bold">
+                            <div class="bg-white/60 p-3 rounded-2xl border border-white">
+                                <span class="text-rose-300 block mb-1">ROUTE</span>
+                                {{ event['From'] }} ➔ {{ event['To'] }}
                             </div>
-                            <div v-if="event['Pregnancy / Accessibility Notes']" class="bg-gradient-to-r from-rose-50 to-pink-50 p-4 rounded-2xl border border-rose-100">
-                                <p class="text-xs text-rose-600 font-black tracking-wide leading-relaxed">
-                                    <i class="fas fa-heart mr-2"></i>{{ event['Pregnancy / Accessibility Notes'] }}
-                                </p>
+                            <div v-if="hasData(event['Est. Travel Time'])" class="bg-white/60 p-3 rounded-2xl border border-white">
+                                <span class="text-rose-300 block mb-1">EST. TIME</span>
+                                {{ event['Est. Travel Time'] }}
                             </div>
-                            <a v-if="event.Link && event.Link.startsWith('http')" :href="event.Link" target="_blank" class="flex items-center justify-center w-full py-4 rounded-2xl bg-gray-800 text-white text-xs font-black shadow-lg">
-                                查看詳細資訊 <i class="fas fa-arrow-right ml-2"></i>
-                            </a>
                         </div>
-                    </transition>
+
+                        <div v-if="hasData(event['Booking / Notes'])" class="text-sm text-gray-500 leading-relaxed bg-white/50 p-4 rounded-2xl italic">
+                            <i class="fas fa-comment-dots text-rose-300 mr-2"></i>{{ event['Booking / Notes'] }}
+                        </div>
+
+                        <div v-if="hasData(event['Pregnancy / Accessibility Notes'])" class="bg-gradient-to-r from-rose-50 to-pink-50 p-4 rounded-2xl border border-rose-100 shadow-sm">
+                            <p class="text-xs text-rose-600 font-black tracking-wide leading-relaxed">
+                                <i class="fas fa-heart mr-2 text-[10px]"></i>{{ event['Pregnancy / Accessibility Notes'] }}
+                            </p>
+                        </div>
+
+                        <a v-if="isValidLink(event.Link)" :href="event.Link" target="_blank" class="flex items-center justify-center w-full py-4 rounded-2xl bg-gray-800 text-white text-xs font-black shadow-lg active:scale-95 transition-transform">
+                            {{ getLinkLabel(event.Link) }} <i class="fas fa-arrow-right ml-2"></i>
+                        </a>
+                    </div>
                 </div>
             </div>
             
@@ -145,6 +140,7 @@
     <script>
         const { createApp, ref, computed, watch, onMounted } = Vue;
         const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSj-9PZm3tsLXr5AMXyyaEvPuBfzdphHFh7oE-AaDIViGIpWgyUw2WiG9GMqX84A-bzNN0lyc3OIP8U/pub?output=csv';
+        
         createApp({
             setup() {
                 const loading = ref(true);
@@ -155,20 +151,28 @@
                 const showDietModal = ref(false);
                 const cityCoords = { '廣島': { lat: 34.38, lon: 132.45 }, '神戶': { lat: 34.69, lon: 135.18 }, '姬路': { lat: 34.81, lon: 134.69 }, '岡山': { lat: 34.66, lon: 133.91 } };
 
+                const hasData = (v) => v && v.toString().trim() !== "" && v !== "N/A" && v !== "-";
+
                 const fetchData = () => {
                     Papa.parse(SHEET_URL, { download: true, header: true, skipEmptyLines: true, complete: (res) => {
-                        events.value = res.data.filter(r => r.Day).map(row => {
+                        events.value = res.data.filter(r => r.Day && r.Day.trim() !== "").map(row => {
                             const n = {}; Object.keys(row).forEach(k => n[k.trim()] = row[k]); return n;
                         });
                         loading.value = false;
                     }});
                 };
+
                 const sortedDays = computed(() => {
-                    const m = {}; events.value.forEach(e => {
-                        const d = parseInt(e.Day); if (!isNaN(d) && !m[d]) m[d] = { dayNum: d, date: e.Date, shortDate: e.Date?.split('-').pop(), city: e['Overnight City'] };
+                    const m = {}; 
+                    events.value.forEach(e => {
+                        const d = parseInt(e.Day); 
+                        if (!isNaN(d) && !m[d]) {
+                            m[d] = { dayNum: d, date: e.Date, shortDate: e.Date?.split('-').pop(), city: e['Overnight City'] };
+                        }
                     });
                     return Object.values(m).sort((a, b) => a.dayNum - b.dayNum);
                 });
+
                 const fetchWeather = async () => {
                     const d = sortedDays.value[currentDayIndex.value]; if (!d) return;
                     try {
@@ -178,11 +182,16 @@
                         weather.value = { temp: Math.round(dat.current_weather.temperature), icon: dat.current_weather.weathercode <= 3 ? 'fas fa-sun' : 'fas fa-cloud' };
                     } catch (e) { weather.value = null; }
                 };
+
                 onMounted(fetchData); watch(currentDayIndex, fetchWeather); watch(loading, (v) => { if(!v) fetchWeather(); });
+
                 return { 
-                    loading, sortedDays, currentDayIndex, expandedIdx, showDietModal, weather,
+                    loading, sortedDays, currentDayIndex, expandedIdx, showDietModal, weather, hasData,
                     currentDay: computed(() => sortedDays.value[currentDayIndex.value]),
                     currentDayEvents: computed(() => sortedDays.value[currentDayIndex.value] ? events.value.filter(e => parseInt(e.Day) === sortedDays.value[currentDayIndex.value].dayNum) : []),
+                    formatTime: (t) => t ? t.substring(0,5) : '--:--',
+                    isValidLink: (l) => l && l.toString().trim().startsWith('http'),
+                    getLinkLabel: (l) => l.toLowerCase().includes('maps') || l.toLowerCase().includes('goo') ? '開啟 Google Maps' : '查看參考網頁',
                     getCategoryStyle: (cat) => {
                         if (cat?.includes('交通')) return 'bg-indigo-100 text-indigo-500';
                         if (cat?.includes('餐')) return 'bg-orange-100 text-orange-500';
