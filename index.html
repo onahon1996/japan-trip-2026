@@ -24,7 +24,7 @@
         
         <div v-if="loading" class="fixed inset-0 z-[100] bg-white flex flex-col items-center justify-center">
             <div class="loader mb-4"></div>
-            <p class="text-blue-600 font-bold text-sm tracking-widest">系統重新校準中...</p>
+            <p class="text-blue-600 font-bold text-sm tracking-widest">資料同步中...</p>
         </div>
 
         <header v-if="!loading" class="sticky top-0 z-50 glass-header border-b border-gray-100 shadow-sm">
@@ -65,7 +65,7 @@
                 <div class="absolute left-[18px] top-1.5 w-3.5 h-3.5 rounded-full border-4 border-gray-50 shadow-sm" :class="getTheme(event.Category).dot"></div>
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden card-active">
                     <div class="px-4 py-3 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
-                        <span class="font-mono font-bold text-gray-600">{{ event['Start Time']?.substring(0,5) }}</span>
+                        <span class="font-mono font-bold text-gray-600">{{ formatTime(event['Start Time']) }}</span>
                         <span class="text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-wider" :class="getTheme(event.Category).tag">{{ event.Category }}</span>
                     </div>
                     <div class="p-4">
@@ -74,12 +74,14 @@
                             <i class="fas fa-location-arrow text-blue-500 mt-1 mr-2 text-xs"></i>
                             {{ event['Location / Address'] }}
                         </div>
+                        
                         <div v-if="isValidLink(event.Link)" class="mt-2 mb-3">
                             <a :href="event.Link" target="_blank" rel="noopener noreferrer" 
                                class="inline-flex items-center bg-blue-50 text-blue-600 px-4 py-2 rounded-xl text-xs font-bold border border-blue-100 shadow-sm active:bg-blue-200">
-                                <i class="fas fa-map-marked-alt mr-2"></i>在地圖中開啟行程 →
+                                <i :class="getLinkIcon(event.Link)" class="mr-2"></i>{{ getLinkLabel(event.Link) }}
                             </a>
                         </div>
+
                         <div v-if="event['Pregnancy / Accessibility Notes']" class="bg-rose-50 border border-rose-100 p-3 rounded-xl flex items-start mt-2">
                             <i class="fas fa-heart text-rose-400 mt-0.5 mr-2 text-xs"></i>
                             <p class="text-xs text-rose-700 leading-relaxed font-medium">{{ event['Pregnancy / Accessibility Notes'] }}</p>
@@ -104,15 +106,18 @@
                 const cityCoords = { '廣島': { lat: 34.38, lon: 132.45 }, '神戶': { lat: 34.69, lon: 135.18 }, '姬路': { lat: 34.81, lon: 134.69 }, '岡山': { lat: 34.66, lon: 133.91 } };
 
                 const fetchData = () => {
+                    loading.value = true;
                     Papa.parse(SHEET_URL, {
                         download: true, header: true, skipEmptyLines: true,
                         complete: (results) => {
-                            const cleanData = results.data.map(row => {
-                                const newRow = {};
-                                Object.keys(row).forEach(key => newRow[key.trim()] = row[key]);
-                                return newRow;
-                            });
-                            events.value = cleanData.filter(r => r.Day && r.Date);
+                            const cleanData = results.data
+                                .filter(r => r.Day && r.Day.trim() !== "")
+                                .map(row => {
+                                    const newRow = {};
+                                    Object.keys(row).forEach(key => newRow[key.trim()] = row[key]);
+                                    return newRow;
+                                });
+                            events.value = cleanData;
                             loading.value = false;
                         }
                     });
@@ -123,15 +128,16 @@
                     events.value.forEach(e => {
                         const dayInt = parseInt(e.Day);
                         if (!isNaN(dayInt) && !dayMap[dayInt]) {
-                            const dateParts = e.Date.split('-');
+                            const dateParts = e.Date ? e.Date.split('-') : ["","","??"];
                             dayMap[dayInt] = {
                                 dayNum: dayInt,
-                                date: e.Date,
+                                date: e.Date || '2026-02-??',
                                 shortDate: dateParts[dateParts.length-1],
-                                city: e['Overnight City']
+                                city: e['Overnight City'] || '未知'
                             };
                         }
                     });
+                    // 強制數字排序 1, 2, 3, 4...
                     return Object.values(dayMap).sort((a, b) => a.dayNum - b.dayNum);
                 });
 
@@ -154,16 +160,23 @@
                     finally { weatherLoading.value = false; }
                 };
 
+                // 智慧連結邏輯
+                const isValidLink = (l) => l && l.toString().trim().startsWith('http');
+                const getLinkIcon = (l) => l.includes('google.com/maps') || l.includes('goo.gl/maps') ? 'fas fa-map-marked-alt' : 'fas fa-external-link-alt';
+                const getLinkLabel = (l) => l.includes('google.com/maps') || l.includes('goo.gl/maps') ? '在地圖中開啟 →' : '查看時刻表/資訊 →';
+
                 watch(currentDayIndex, fetchWeather);
                 watch(loading, (val) => { if(!val) fetchWeather(); });
                 onMounted(fetchData);
 
                 return { 
-                    loading, sortedDays, currentDayIndex, currentDay, currentDayEvents, weather, weatherLoading,
-                    isValidLink: (l) => l && l.toString().trim().startsWith('http'),
+                    loading, sortedDays, currentDayIndex, currentDay, currentDayEvents, weather, weatherLoading, 
+                    isValidLink, getLinkIcon, getLinkLabel,
+                    formatTime: (t) => t ? t.substring(0,5) : '--:--',
                     getTheme: (cat) => {
-                        if (cat?.includes('交通') || cat?.includes('航班')) return { dot: 'bg-blue-500', tag: 'bg-blue-100 text-blue-600' };
-                        if (cat?.includes('餐')) return { dot: 'bg-orange-500', tag: 'bg-orange-100 text-orange-600' };
+                        const c = cat || "";
+                        if (c.includes('交通') || c.includes('航班')) return { dot: 'bg-blue-500', tag: 'bg-blue-100 text-blue-600' };
+                        if (c.includes('餐')) return { dot: 'bg-orange-500', tag: 'bg-orange-100 text-orange-600' };
                         return { dot: 'bg-emerald-500', tag: 'bg-emerald-100 text-emerald-600' };
                     }
                 };
