@@ -3,85 +3,87 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>2026 日本廣島神戶之旅</title>
+    <title>2026 日本行｜智慧小幫手</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
     <style>
-        body { font-family: 'Noto Sans TC', sans-serif; background-color: #F3F4F6; -webkit-tap-highlight-color: transparent; }
-        .timeline-line { position: absolute; left: 24px; top: 0; bottom: 0; width: 2px; background-color: #E5E7EB; z-index: 0; }
-        .card-shadow { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); }
-        .category-pill { font-size: 0.75rem; padding: 2px 8px; border-radius: 9999px; font-weight: 600; }
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: #F8FAFC; -webkit-tap-highlight-color: transparent; }
+        .timeline-line { position: absolute; left: 24px; top: 0; bottom: 0; width: 2px; background-image: linear-gradient(to bottom, #E2E8F0 10%, rgba(255,255,255,0) 0%); background-size: 2px 10px; z-index: 0; }
+        .glass-header { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+        .card-active { border-left: 4px solid #3B82F6; }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .loader { border: 3px solid #f3f3f3; border-top: 3px solid #3498db; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
+        .loader { border: 3px solid #F3F4F6; border-top: 3px solid #3B82F6; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
-<body class="text-gray-800">
-    <div id="app" class="max-w-md mx-auto bg-gray-50 min-h-screen relative pb-20">
-        
-        <div v-if="loading" class="fixed inset-0 z-[60] bg-white flex flex-col items-center justify-center">
+<body>
+    <div id="app" class="max-w-md mx-auto min-h-screen relative pb-10">
+        <div v-if="loading" class="fixed inset-0 z-[100] bg-white flex flex-col items-center justify-center">
             <div class="loader mb-4"></div>
-            <p class="text-gray-500 font-medium">同步雲端行程與天氣...</p>
+            <div class="text-blue-600 font-bold tracking-widest text-sm">更新資料中...</div>
         </div>
 
-        <header v-if="!loading" class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-200 shadow-sm">
-            <div class="px-4 py-3 flex justify-between items-start">
+        <header v-if="!loading" class="sticky top-0 z-50 glass-header border-b border-gray-100 shadow-sm">
+            <div class="px-5 py-4 flex justify-between items-center">
                 <div>
-                    <h1 class="text-lg font-bold text-gray-900">🇯🇵 日本之旅</h1>
-                    <p class="text-xs text-gray-500" v-if="currentDay">
-                        {{ currentDay.date }} (Day {{ currentDay.dayNum }})
-                    </p>
-                </div>
-                <div class="text-right" v-if="currentDay">
-                    <div class="text-xs font-medium bg-blue-100 text-blue-700 px-2 py-1 rounded-lg inline-block">
-                        {{ currentDay.city }}
+                    <h1 class="text-xl font-black text-gray-800 tracking-tight">2026 日本行</h1>
+                    <div class="flex items-center text-xs text-gray-500 mt-0.5">
+                        <i class="far fa-calendar-alt mr-1"></i>
+                        {{ currentDay?.date }} <span class="mx-1">|</span> Day {{ currentDay?.dayNum }}
                     </div>
-                    <div class="mt-1 text-[11px] text-gray-600 flex items-center justify-end">
-                        <div v-if="weatherLoading" class="loader w-3 h-3 border-2 mr-1"></div>
-                        <span v-else-if="weather">
-                            <i :class="weather.iconClass" class="mr-1 text-blue-500"></i>
-                            {{ weather.temp }}°C ({{ weather.desc }})
-                        </span>
-                        <span v-else>暫無天氣資訊</span>
+                </div>
+                <div class="bg-blue-50 px-3 py-1.5 rounded-2xl border border-blue-100 text-right min-w-[80px]">
+                    <div v-if="weatherLoading" class="loader w-3 h-3 border-2 mx-auto"></div>
+                    <div v-else-if="weather" class="flex flex-col items-end">
+                        <span class="text-[10px] text-blue-400 font-bold uppercase">{{ currentDay?.city }}</span>
+                        <div class="flex items-center text-blue-700">
+                            <i :class="weather.icon" class="mr-1.5 text-xs"></i>
+                            <span class="font-mono font-bold text-sm">{{ weather.temp }}°</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="flex overflow-x-auto hide-scrollbar py-2 px-2 space-x-2 border-t border-gray-100 bg-white">
+            <div class="flex overflow-x-auto hide-scrollbar px-3 py-3 space-x-3 bg-white/50">
                 <button v-for="(day, index) in days" :key="index"
                     @click="currentDayIndex = index"
-                    :class="currentDayIndex === index ? 'bg-black text-white shadow-md' : 'bg-gray-100 text-gray-600'"
-                    class="flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap flex flex-col items-center min-w-[60px]">
-                    <span class="text-[10px] opacity-80">Day {{ day.dayNum }}</span>
-                    <span class="font-bold">{{ getShortDate(day.date) }}</span>
+                    :class="currentDayIndex === index ? 'bg-blue-600 text-white shadow-lg scale-105' : 'bg-white text-gray-400 border border-gray-100'"
+                    class="flex-shrink-0 w-14 h-14 rounded-2xl transition-all duration-300 flex flex-col items-center justify-center">
+                    <span class="text-[9px] uppercase font-bold">D{{ day.dayNum }}</span>
+                    <span class="text-sm font-black">{{ getShortDate(day.date) }}</span>
                 </button>
             </div>
         </header>
 
-        <main v-if="!loading" class="p-4 relative">
+        <main v-if="!loading" class="p-5 relative">
             <div class="timeline-line"></div>
-            <div v-for="(event, idx) in currentDayEvents" :key="idx" class="relative z-10 mb-6 pl-8 group">
-                <div class="absolute left-[-8px] top-4 w-4 h-4 rounded-full border-2 border-white shadow-sm" :class="getCategoryColor(event.Category, 'dot')"></div>
-                <div class="bg-white rounded-xl card-shadow overflow-hidden border border-gray-100 active:scale-[0.98] transition-transform">
-                    <div class="flex justify-between items-center px-4 py-3 border-b border-gray-50">
-                        <div class="flex items-center space-x-2 font-bold text-gray-700">
-                            <span>{{ event['Start Time']?.substring(0,5) }}</span>
-                            <span v-if="event['End Time']" class="text-xs text-gray-400 font-normal">~ {{ event['End Time']?.substring(0,5) }}</span>
-                        </div>
-                        <span :class="['category-pill', getCategoryColor(event.Category, 'bg')]">{{ event.Category }}</span>
+            <div v-for="(event, idx) in currentDayEvents" :key="idx" class="relative z-10 mb-8 pl-10">
+                <div class="absolute left-[18px] top-1.5 w-3.5 h-3.5 rounded-full border-4 border-gray-50 shadow-sm" :class="getTheme(event.Category).dot"></div>
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden card-active">
+                    <div class="px-4 py-3 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
+                        <span class="font-mono font-bold text-gray-600">{{ event['Start Time']?.substring(0,5) }}</span>
+                        <span class="text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-wider" :class="getTheme(event.Category).tag">{{ event.Category }}</span>
                     </div>
                     <div class="p-4">
-                        <h3 class="text-lg font-bold text-gray-800 mb-1 leading-tight">{{ event.Activity }}</h3>
-                        <div v-if="event['Location / Address']" class="text-sm text-gray-500 mb-2">
-                            <i class="fas fa-map-marker-alt mr-1.5 text-blue-500"></i>{{ event['Location / Address'] }}
+                        <h3 class="text-lg font-bold text-gray-800 leading-snug mb-2">{{ event.Activity }}</h3>
+                        <div v-if="event['Location / Address']" class="flex items-start mb-3">
+                            <i class="fas fa-location-arrow text-blue-500 mt-1 mr-2 text-xs"></i>
+                            <p class="text-sm text-gray-500 leading-tight">{{ event['Location / Address'] }}</p>
                         </div>
-                        <div v-if="event['Pregnancy / Accessibility Notes']" class="mt-3 text-sm text-pink-700 bg-pink-50 p-2 rounded border border-pink-100">
-                            <i class="fas fa-baby-carriage mr-1.5"></i>{{ event['Pregnancy / Accessibility Notes'] }}
+
+                        <div v-if="isValidLink(event.Link)" class="mt-2 mb-3">
+                            <a :href="event.Link" target="_blank" rel="noopener noreferrer" 
+                               class="inline-flex items-center bg-blue-50 text-blue-600 px-4 py-2 rounded-xl text-xs font-bold border border-blue-100 hover:bg-blue-100 transition">
+                                <i class="fas fa-external-link-alt mr-2"></i>在地圖中開啟行程 →
+                            </a>
+                        </div>
+
+                        <div v-if="event['Pregnancy / Accessibility Notes']" class="bg-rose-50 border border-rose-100 p-3 rounded-xl flex items-start">
+                            <i class="fas fa-heart text-rose-400 mt-0.5 mr-2 text-xs"></i>
+                            <p class="text-xs text-rose-700 leading-relaxed font-medium">{{ event['Pregnancy / Accessibility Notes'] }}</p>
                         </div>
                     </div>
                 </div>
@@ -101,22 +103,29 @@
                 const weather = ref(null);
                 const weatherLoading = ref(false);
 
-                // 城市座標對應
-                const cityCoords = {
-                    '廣島': { lat: 34.38, lon: 132.45 },
-                    '神戶': { lat: 34.69, lon: 135.18 },
-                    '姬路': { lat: 34.81, lon: 134.69 },
-                    '岡山': { lat: 34.66, lon: 133.91 }
-                };
+                const cityCoords = { '廣島': { lat: 34.38, lon: 132.45 }, '神戶': { lat: 34.69, lon: 135.18 }, '姬路': { lat: 34.81, lon: 134.69 }, '岡山': { lat: 34.66, lon: 133.91 } };
 
                 const fetchData = () => {
+                    loading.value = true;
                     Papa.parse(SHEET_URL, {
                         download: true, header: true, skipEmptyLines: true,
                         complete: (results) => {
-                            events.value = results.data.filter(r => r.Day && r.Date);
+                            // 這裡會清理所有 Key，把欄位前後的空格都刪掉，避免對應不到 Link
+                            const cleanData = results.data.map(row => {
+                                const newRow = {};
+                                Object.keys(row).forEach(key => newRow[key.trim()] = row[key]);
+                                return newRow;
+                            });
+                            events.value = cleanData.filter(r => r.Day && r.Date);
                             loading.value = false;
                         }
                     });
+                };
+
+                const isValidLink = (link) => {
+                    if (!link) return false;
+                    const l = link.toString().trim();
+                    return l.startsWith('http') || l.startsWith('https://');
                 };
 
                 const days = computed(() => {
@@ -131,66 +140,33 @@
                     return unique.sort((a, b) => a.dayNum - b.dayNum);
                 });
 
-                const currentDay = computed(() => days.value[currentDayIndex.value] || null);
-                const currentDayEvents = computed(() => {
-                    if (!currentDay.value) return [];
-                    return events.value.filter(e => e.Date === currentDay.value.date);
-                });
+                const currentDay = computed(() => days.value[currentDayIndex.value]);
+                const currentDayEvents = computed(() => currentDay.value ? events.value.filter(e => e.Date === currentDay.value.date) : []);
 
-                // 天氣抓取函式
                 const fetchWeather = async () => {
                     if (!currentDay.value) return;
-                    const city = currentDay.value.city;
-                    const coord = cityCoords[city] || cityCoords['廣島'];
-                    
                     weatherLoading.value = true;
+                    const coord = cityCoords[currentDay.value.city] || cityCoords['廣島'];
                     try {
                         const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${coord.lat}&longitude=${coord.lon}&current_weather=true`);
                         const data = await res.json();
-                        const code = data.current_weather.weathercode;
-                        
-                        // 簡單的天氣代碼轉文字與圖示
-                        const weatherMap = {
-                            0: { desc: '晴朗', icon: 'fa-sun' },
-                            1: { desc: '晴間多雲', icon: 'fa-cloud-sun' },
-                            2: { desc: '多雲', icon: 'fa-cloud' },
-                            3: { desc: '陰天', icon: 'fa-cloud' },
-                            45: { desc: '有霧', icon: 'fa-smog' },
-                            61: { desc: '小雨', icon: 'fa-cloud-rain' },
-                            95: { desc: '雷陣雨', icon: 'fa-bolt' }
-                        };
-                        
-                        const info = weatherMap[code] || { desc: '觀測中', icon: 'fa-cloud' };
-                        weather.value = {
-                            temp: Math.round(data.current_weather.temperature),
-                            desc: info.desc,
-                            iconClass: `fas ${info.icon}`
-                        };
-                    } catch (e) {
-                        console.error("天氣載入失敗", e);
-                        weather.value = null;
-                    } finally {
-                        weatherLoading.value = false;
-                    }
+                        const iconMap = (c) => c <= 3 ? 'fa-sun' : c <= 67 ? 'fa-cloud-rain' : 'fa-cloud';
+                        weather.value = { temp: Math.round(data.current_weather.temperature), icon: `fas ${iconMap(data.current_weather.weathercode)}` };
+                    } catch (e) { weather.value = null; }
+                    finally { weatherLoading.value = false; }
                 };
 
-                // 當切換日期時，重新抓天氣
                 watch(currentDayIndex, fetchWeather);
-                watch(loading, (newVal) => { if(!newVal) fetchWeather(); });
-
+                watch(loading, (val) => { if(!val) fetchWeather(); });
                 onMounted(fetchData);
 
-                return {
-                    loading, days, currentDayIndex, currentDay, currentDayEvents, 
-                    weather, weatherLoading,
-                    getShortDate: (d) => d.substring(5).replace('-', '/'),
-                    getCategoryColor: (cat, type) => {
-                        let color = cat?.includes('交通') ? 'blue' : cat?.includes('餐') ? 'orange' : cat?.includes('觀光') ? 'green' : 'purple';
-                        const map = {
-                            dot: { blue: 'bg-blue-500', orange: 'bg-orange-500', green: 'bg-green-500', purple: 'bg-purple-500' },
-                            bg: { blue: 'bg-blue-100 text-blue-700', orange: 'bg-orange-100 text-orange-700', green: 'bg-green-100 text-green-700', purple: 'bg-purple-100 text-purple-700' }
-                        };
-                        return map[type][color];
+                return { 
+                    loading, days, currentDayIndex, currentDay, currentDayEvents, weather, weatherLoading, isValidLink,
+                    getShortDate: (d) => d?.split('-')[2] || '',
+                    getTheme: (cat) => {
+                        if (cat?.includes('交通') || cat?.includes('航班')) return { dot: 'bg-blue-500', tag: 'bg-blue-100 text-blue-600' };
+                        if (cat?.includes('餐')) return { dot: 'bg-orange-500', tag: 'bg-orange-100 text-orange-600' };
+                        return { dot: 'bg-emerald-500', tag: 'bg-emerald-100 text-emerald-600' };
                     }
                 };
             }
