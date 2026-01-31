@@ -21,10 +21,9 @@
 </head>
 <body>
     <div id="app" class="max-w-md mx-auto min-h-screen relative pb-10">
-        
         <div v-if="loading" class="fixed inset-0 z-[100] bg-white flex flex-col items-center justify-center">
             <div class="loader mb-4"></div>
-            <p class="text-blue-600 font-bold text-sm tracking-widest">資料同步中...</p>
+            <p class="text-blue-600 font-bold text-sm tracking-widest">系統同步校準中...</p>
         </div>
 
         <header v-if="!loading" class="sticky top-0 z-50 glass-header border-b border-gray-100 shadow-sm">
@@ -131,13 +130,12 @@
                             const dateParts = e.Date ? e.Date.split('-') : ["","","??"];
                             dayMap[dayInt] = {
                                 dayNum: dayInt,
-                                date: e.Date || '2026-02-??',
+                                date: e.Date,
                                 shortDate: dateParts[dateParts.length-1],
-                                city: e['Overnight City'] || '未知'
+                                city: e['Overnight City']
                             };
                         }
                     });
-                    // 強制數字排序 1, 2, 3, 4...
                     return Object.values(dayMap).sort((a, b) => a.dayNum - b.dayNum);
                 });
 
@@ -146,6 +144,16 @@
                     if (!currentDay.value) return [];
                     return events.value.filter(e => parseInt(e.Day) === currentDay.value.dayNum);
                 });
+
+                // 修正地圖連結判定：包含 maps.google 或 googleusercontent 的通通算地圖
+                const isMap = (url) => {
+                    const u = url.toString().toLowerCase();
+                    return u.includes('maps.google') || u.includes('googleusercontent') || u.includes('goo.gl/maps');
+                };
+
+                const isValidLink = (l) => l && l.toString().trim().startsWith('http');
+                const getLinkIcon = (l) => isMap(l) ? 'fas fa-map-marked-alt' : 'fas fa-external-link-alt';
+                const getLinkLabel = (l) => isMap(l) ? '查看位置 →' : '查看資訊/時刻表 →';
 
                 const fetchWeather = async () => {
                     if (!currentDay.value) return;
@@ -160,11 +168,6 @@
                     finally { weatherLoading.value = false; }
                 };
 
-                // 智慧連結邏輯
-                const isValidLink = (l) => l && l.toString().trim().startsWith('http');
-                const getLinkIcon = (l) => l.includes('google.com/maps') || l.includes('goo.gl/maps') ? 'fas fa-map-marked-alt' : 'fas fa-external-link-alt';
-                const getLinkLabel = (l) => l.includes('google.com/maps') || l.includes('goo.gl/maps') ? '在地圖中開啟 →' : '查看時刻表/資訊 →';
-
                 watch(currentDayIndex, fetchWeather);
                 watch(loading, (val) => { if(!val) fetchWeather(); });
                 onMounted(fetchData);
@@ -175,7 +178,7 @@
                     formatTime: (t) => t ? t.substring(0,5) : '--:--',
                     getTheme: (cat) => {
                         const c = cat || "";
-                        if (c.includes('交通') || c.includes('航班')) return { dot: 'bg-blue-500', tag: 'bg-blue-100 text-blue-600' };
+                        if (c.includes('交通')) return { dot: 'bg-blue-500', tag: 'bg-blue-100 text-blue-600' };
                         if (c.includes('餐')) return { dot: 'bg-orange-500', tag: 'bg-orange-100 text-orange-600' };
                         return { dot: 'bg-emerald-500', tag: 'bg-emerald-100 text-emerald-600' };
                     }
