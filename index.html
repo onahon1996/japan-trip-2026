@@ -19,12 +19,12 @@
     
     <style>
         body { background: linear-gradient(135deg, #FFF5F7 0%, #F5F3FF 100%); font-family: 'Noto Sans TC', sans-serif; -webkit-tap-highlight-color: transparent; }
-        .glass-header { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+        .glass-header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.5); }
         
-        /* 城市主題色變數 (動態綁定) */
-        .city-theme-blue { --theme-color: #06b6d4; --theme-bg: #cffafe; } /* 廣島 */
-        .city-theme-purple { --theme-color: #8b5cf6; --theme-bg: #ede9fe; } /* 神戶 */
-        .city-theme-orange { --theme-color: #f97316; --theme-bg: #ffedd5; } /* 岡山/姬路 */
+        /* 城市主題色變數 */
+        .city-theme-blue { --theme-color: #06b6d4; --theme-bg: #cffafe; }
+        .city-theme-purple { --theme-color: #8b5cf6; --theme-bg: #ede9fe; }
+        .city-theme-orange { --theme-color: #f97316; --theme-bg: #ffedd5; }
         
         .cute-card { border-radius: 28px; background: rgba(255, 255, 255, 0.85); border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 10px 20px rgba(0,0,0,0.02); transition: all 0.3s ease; }
         .fab { position: fixed; bottom: 35px; right: 25px; z-index: 100; width: 72px; height: 72px; border-radius: 36px; background: linear-gradient(45deg, #F43F5E, #EC4899); color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(244, 63, 94, 0.4); border: 3px solid white; animation: pulse 2s infinite; }
@@ -47,12 +47,10 @@
                     <div class="bg-rose-500 py-5 text-center text-white"><h2 class="text-2xl font-black">【食事のお願い】</h2></div>
                     <div class="p-7 space-y-5">
                         <div class="bg-white border-l-8 border-rose-500 pl-4 py-1 text-rose-600 text-3xl font-black">私は妊婦です。🤰</div>
-                        
                         <div class="space-y-4">
                             <div class="bg-rose-600 text-white p-3 rounded-xl text-center shadow-md transform scale-105">
                                 <p class="font-black text-lg tracking-wider">⚠️ 以下のものは<br>入れないでください：</p>
                             </div>
-                            
                             <div class="bg-gray-50 p-3 rounded-2xl flex items-center border border-gray-200">
                                 <span class="text-3xl mr-4">🚫</span><p class="text-xl font-black text-gray-800">アルコール（酒・みりん）</p>
                             </div>
@@ -75,23 +73,28 @@
             <p class="text-rose-400 font-bold tracking-widest animate-pulse">與伺服器連線中...</p>
         </div>
 
-        <header v-if="!loading" class="sticky top-0 z-50 glass-header border-b border-white/50 px-6 py-4">
-            <div class="flex justify-between items-start mb-4">
-                <div>
-                    <h1 class="text-2xl font-black text-gray-800 tracking-tighter">2026 日本行 <span class="text-rose-500">🌸</span></h1>
+        <header v-if="!loading" class="sticky top-0 z-50 glass-header px-5 py-4">
+            <div class="flex justify-between items-start mb-4 relative">
+                <div class="flex-1 min-w-0 pr-2">
+                    <h1 class="text-2xl font-black text-gray-800 tracking-tighter truncate">2026 日本行 <span class="text-rose-500">🌸</span></h1>
                     <div class="flex items-center mt-1">
                         <span class="text-xs font-bold text-gray-400 uppercase tracking-widest mr-2">Day {{ currentDay?.dayNum }}</span>
-                        <span class="text-xs font-black px-2 py-0.5 rounded-md uppercase text-white" :class="getCityTheme(currentDay?.city).badge">
-                            {{ currentDay?.city }}
+                        <span class="text-xs font-black px-2 py-0.5 rounded-md uppercase text-white shadow-sm" :class="getCityTheme(currentDay?.city).badge">
+                            {{ currentDay?.city || 'JAPAN' }}
                         </span>
                     </div>
                 </div>
-                <div v-if="weather" class="text-right">
-                    <div class="flex flex-col items-end">
-                        <span class="text-[10px] font-black text-gray-300 uppercase tracking-widest mb-0.5">{{ currentDay?.city }} Weather</span>
-                        <div class="flex items-center text-gray-600">
-                            <i :class="weather.icon" class="mr-1.5 text-base text-amber-400"></i>
-                            <span class="font-mono font-black text-lg">{{ weather.temp }}°</span>
+                
+                <div v-if="weather" class="flex-shrink-0 text-right bg-white/50 px-3 py-2 rounded-xl border border-white shadow-sm backdrop-blur-md">
+                    <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1 text-right">{{ currentDay?.city || 'Weather' }}</span>
+                    <div class="flex items-center justify-end">
+                        <i :class="weather.icon" class="mr-2 text-xl text-amber-400 filter drop-shadow-sm"></i>
+                        
+                        <span class="font-mono font-black text-3xl text-gray-700 mr-2 leading-none">{{ weather.temp }}°</span>
+                        
+                        <div class="flex flex-col text-[10px] font-black leading-tight border-l-2 border-gray-200 pl-2">
+                            <span class="text-rose-500 flex items-center whitespace-nowrap"><i class="fas fa-arrow-up text-[8px] mr-0.5"></i>{{ weather.max }}°</span>
+                            <span class="text-indigo-500 flex items-center whitespace-nowrap"><i class="fas fa-arrow-down text-[8px] mr-0.5"></i>{{ weather.min }}°</span>
                         </div>
                     </div>
                 </div>
@@ -134,25 +137,21 @@
                                 {{ event['Est. Travel Time'] }}
                             </div>
                         </div>
-
                         <div v-if="hasData(event['Booking / Notes'])" class="text-sm text-gray-500 leading-relaxed bg-white/60 p-4 rounded-2xl italic border border-white">
                             <i class="fas fa-comment-dots text-rose-300 mr-2"></i>{{ event['Booking / Notes'] }}
                         </div>
-
                         <div v-if="hasData(event['Pregnancy / Accessibility Notes'])" class="bg-gradient-to-r from-rose-50 to-pink-50 p-4 rounded-2xl border border-rose-200 shadow-sm relative overflow-hidden">
                             <div class="absolute top-0 right-0 p-2 opacity-10"><i class="fas fa-heart text-4xl text-rose-500"></i></div>
                             <p class="text-xs text-rose-600 font-black tracking-wide leading-relaxed relative z-10">
                                 <i class="fas fa-heart mr-1"></i> {{ event['Pregnancy / Accessibility Notes'] }}
                             </p>
                         </div>
-
                         <a v-if="isValidLink(event.Link)" :href="event.Link" target="_blank" class="flex items-center justify-center w-full py-4 rounded-2xl bg-gray-800 text-white text-xs font-black shadow-lg active:scale-95 transition-transform">
                             {{ getLinkLabel(event.Link) }} <i class="fas fa-arrow-right ml-2"></i>
                         </a>
                     </div>
                 </div>
             </div>
-            
             <div class="signature">✨ Powered by 育慶大人 ✨</div>
         </main>
     </div>
@@ -180,20 +179,10 @@
                         });
                         loading.value = false;
                         
-                        // === 自動聚焦邏輯 (Auto Focus) ===
-                        // 取得今天日期，格式化為 yyyy-mm-dd
                         const today = new Date();
-                        const yyyy = today.getFullYear();
-                        const mm = String(today.getMonth() + 1).padStart(2, '0');
-                        const dd = String(today.getDate()).padStart(2, '0');
-                        const todayStr = `${yyyy}-${mm}-${dd}`;
-                        
-                        // 在行程中尋找今天
+                        const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
                         const todayIdx = sortedDays.value.findIndex(d => d.date === todayStr);
-                        if (todayIdx !== -1) {
-                            currentDayIndex.value = todayIdx; // 如果是旅遊當天，自動跳轉
-                        }
-                        // =================================
+                        if (todayIdx !== -1) currentDayIndex.value = todayIdx;
                     }});
                 };
 
@@ -212,38 +201,35 @@
                     const d = sortedDays.value[currentDayIndex.value]; if (!d) return;
                     try {
                         const coord = cityCoords[d.city] || cityCoords['廣島'];
-                        const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${coord.lat}&longitude=${coord.lon}&current_weather=true`);
+                        // 修正：確保 API 網址參數完整，並加上錯誤處理
+                        const url = `https://api.open-meteo.com/v1/forecast?latitude=${coord.lat}&longitude=${coord.lon}&current_weather=true&daily=temperature_2m_max,temperature_2m_min&timezone=Asia%2FTokyo`;
+                        const res = await fetch(url);
                         const dat = await res.json();
-                        weather.value = { temp: Math.round(dat.current_weather.temperature), icon: dat.current_weather.weathercode <= 3 ? 'fas fa-sun' : 'fas fa-cloud' };
-                    } catch (e) { weather.value = null; }
+                        
+                        // 安全讀取：防止因為 API 沒有回傳 daily 而報錯
+                        const maxTemp = dat.daily?.temperature_2m_max?.[0] ?? '--';
+                        const minTemp = dat.daily?.temperature_2m_min?.[0] ?? '--';
+                        
+                        weather.value = { 
+                            temp: Math.round(dat.current_weather.temperature), 
+                            icon: dat.current_weather.weathercode <= 3 ? 'fas fa-sun' : 'fas fa-cloud',
+                            max: maxTemp !== '--' ? Math.round(maxTemp) : '--',
+                            min: minTemp !== '--' ? Math.round(minTemp) : '--'
+                        };
+                    } catch (e) { 
+                        console.error("Weather Error:", e);
+                        weather.value = null; 
+                    }
                 };
 
                 onMounted(fetchData); watch(currentDayIndex, fetchWeather); watch(loading, (v) => { if(!v) fetchWeather(); });
 
-                // 城市配色邏輯
                 const getCityTheme = (city) => {
                     const c = city || "";
-                    if (c.includes('廣島')) return { 
-                        active: 'bg-cyan-500 text-white shadow-cyan-200 shadow-lg scale-105 border-cyan-500', 
-                        inactive: 'bg-cyan-50 text-cyan-300 border-cyan-100',
-                        badge: 'bg-cyan-500'
-                    };
-                    if (c.includes('神戶')) return { 
-                        active: 'bg-indigo-500 text-white shadow-indigo-200 shadow-lg scale-105 border-indigo-500', 
-                        inactive: 'bg-indigo-50 text-indigo-300 border-indigo-100',
-                        badge: 'bg-indigo-500'
-                    };
-                    if (c.includes('岡山') || c.includes('姬路')) return { 
-                        active: 'bg-orange-400 text-white shadow-orange-200 shadow-lg scale-105 border-orange-400', 
-                        inactive: 'bg-orange-50 text-orange-300 border-orange-100',
-                        badge: 'bg-orange-400'
-                    };
-                    // 預設
-                    return { 
-                        active: 'bg-rose-400 text-white shadow-rose-200 shadow-lg scale-105 border-rose-400', 
-                        inactive: 'bg-white text-gray-300 border-white',
-                        badge: 'bg-rose-400'
-                    };
+                    if (c.includes('廣島')) return { active: 'bg-cyan-500 text-white shadow-cyan-200 shadow-lg scale-105 border-cyan-500', inactive: 'bg-cyan-50 text-cyan-300 border-cyan-100', badge: 'bg-cyan-500' };
+                    if (c.includes('神戶')) return { active: 'bg-indigo-500 text-white shadow-indigo-200 shadow-lg scale-105 border-indigo-500', inactive: 'bg-indigo-50 text-indigo-300 border-indigo-100', badge: 'bg-indigo-500' };
+                    if (c.includes('岡山') || c.includes('姬路')) return { active: 'bg-orange-400 text-white shadow-orange-200 shadow-lg scale-105 border-orange-400', inactive: 'bg-orange-50 text-orange-300 border-orange-100', badge: 'bg-orange-400' };
+                    return { active: 'bg-rose-400 text-white shadow-rose-200 shadow-lg scale-105 border-rose-400', inactive: 'bg-white text-gray-300 border-white', badge: 'bg-rose-400' };
                 };
 
                 return { 
